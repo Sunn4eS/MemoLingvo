@@ -1,4 +1,4 @@
-# Flutter
+# Flutter ignore
 # Miscellaneous
 *.class
 *.log
@@ -144,4 +144,4 @@ app.*.symbols
 !**/ios/**/GoogleService-Info.plist
 !**/android/**/google-services.json
 
-#############################################
+##################################################################
