@@ -1,0 +1,9 @@
+{
+  "appTitle": "MemoLingvo",
+  "welcome": "Welcome",
+  "login": "Log in",
+  "register": "Register",
+  "email": "Email",
+  "password": "Password",
+  "home_screen_startLearning": "Start learning (register)"
+}

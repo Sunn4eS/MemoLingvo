@@ -1,0 +1,9 @@
+{
+  "appTitle": "MemoLingvo",
+  "welcome": "Добро пожаловать",
+  "home_screen_startLearning": "Начать обучение (Регистрация)",
+  "login": "Войти",
+  "register": "Регистрация",
+  "email": "Эл. почта",
+  "password": "Пароль"
+}
