@@ -1,14 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:lingo_cards/core/localization/l10n/app_localizations.dart';
-import 'package:lingo_cards/features/auth/logic/auth_cubit.dart';
-import 'package:lingo_cards/features/auth/presentation/screens/register_screen.dart';
-import 'package:lingo_cards/features/auth/presentation/screens/splash_screen.dart';
-import 'package:lingo_cards/features/auth/presentation/screens/welcome_screen.dart';
-import 'package:lingo_cards/firebase_options.dart';
+import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
+import 'package:memo_lingvo/features/auth/logic/auth_cubit.dart';
+import 'package:memo_lingvo/features/auth/presentation/screens/register_screen.dart';
+import 'package:memo_lingvo/features/auth/presentation/screens/splash_screen.dart';
+import 'package:memo_lingvo/features/auth/presentation/screens/welcome_screen.dart';
+import 'package:memo_lingvo/firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lingo_cards/features/auth/data/repositories/auth_repository.dart';
+import 'package:memo_lingvo/features/auth/data/repositories/auth_repository.dart';
 
 class MyApp extends StatelessWidget {
   @override

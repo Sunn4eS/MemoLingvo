@@ -1,4 +1,4 @@
-import 'package:lingo_cards/features/auth/domain/entities/user.dart';
+import 'package:memo_lingvo/features/auth/domain/entities/user.dart';
 
 abstract class AuthRepository {
   Future<User?> getCurrentUser();

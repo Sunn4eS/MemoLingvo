@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:lingo_cards/features/auth/data/models/user_model.dart';
+//import 'package:memo_lingvo/features/auth/data/models/user_model.dart';
 
 class AuthRepository {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
