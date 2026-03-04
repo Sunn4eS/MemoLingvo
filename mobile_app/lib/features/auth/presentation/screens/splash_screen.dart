@@ -9,7 +9,7 @@ class SplashScreen extends StatelessWidget {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         state.whenOrNull(
-      //   authenticated: (_) => Navigator.pushReplacement(context, '/home'),
+         authenticated: (_) => Navigator.pushReplacementNamed(context, '/home'),
          unauthenticated: () => Navigator.pushReplacementNamed(context, '/welcome'),
         );
       },
