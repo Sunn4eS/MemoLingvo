@@ -1,8 +1,7 @@
 {
   "appTitle": "MemoLingvo",
-  "welcome": "Добро пожаловать",
-  "login": "Войти",
-  "welcome_screen_startLearning": "Начать обучение (Регистрация)",
+  "welcome_screen_register": "Начать обучение (Регистрация)",
+  "welcome_screen_login" : "Войти",
   "register_screen_register": "Регистрация",
   "register_screen_email": "Электронная почта",
   "register_screen_password": "Пароль",
@@ -10,5 +9,7 @@
   "settings_screen_title": "Настройки",
   "settings_screen_change_language" : "Изменить язык",
   "settings_screen_dark_mode": "Темная тема",
-  "settings_screen_logout": "Выйти из аккаунта"
+  "settings_screen_logout": "Выйти из аккаунта",
+  "login_screen_title" : "Войти",
+  "login_screen_no_account" : "Нет аккаунта? Создать"
 }

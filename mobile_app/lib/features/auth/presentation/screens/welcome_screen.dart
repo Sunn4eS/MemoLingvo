@@ -19,8 +19,15 @@ class WelcomeScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () => Navigator.pushNamed(context, '/register'),
               child: Text(
-                AppLocalizations.of(context)!.welcome_screen_startLearning,
+                AppLocalizations.of(context)!.welcome_screen_register,
               ),
+            ),
+
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () => Navigator.pushNamed(context, '/login'),
+              child: Text(AppLocalizations.of(context)!.welcome_screen_login),
             ),
           ],
         ),
