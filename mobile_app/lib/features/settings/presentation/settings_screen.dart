@@ -4,10 +4,24 @@ import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/core/localization/locale_cubit.dart';
 import 'package:memo_lingvo/features/auth/logic/auth_cubit.dart';
 import 'package:memo_lingvo/core/theme/theme_cubit.dart';
+
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    final currentLocale = context.watch<LocaleCubit>().state;
+
+    String getCurrentLanguageName() {
+      switch (currentLocale.languageCode) {
+        case 'en':
+          return 'English';
+        case 'ru':
+          return 'Русский';
+        default:
+          return 'Русский';
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settings_screen_title)),
@@ -17,7 +31,16 @@ class SettingsScreen extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.language),
             title: Text(l10n.settings_screen_change_language),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  getCurrentLanguageName(),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                const Icon(Icons.arrow_forward_ios, size: 16),
+              ],
+            ),
             onTap: () => _showLanguagePicker(context),
           ),
 
@@ -57,13 +80,26 @@ class SettingsScreen extends StatelessWidget {
 
   void _showLanguagePicker(BuildContext context) {
     showModalBottomSheet(
-      context: context, 
+      context: context,
       builder: (context) => Column(
         mainAxisAlignment: MainAxisAlignment.center,
-       // children: [ListTile(title: const Text("Русский"), onTap: () => ),
-       //   ListTile(title: const Text("English"), onTap: () => /* Cubit set locale EN */),
-       // ],
-      )
+        children: [
+          ListTile(
+            title: const Text("Русский"),
+            onTap: () {
+              context.read<LocaleCubit>().setLocale('ru');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            title: const Text("English"),
+            onTap: () {
+              context.read<LocaleCubit>().setLocale('en');
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
     );
   }
 }
