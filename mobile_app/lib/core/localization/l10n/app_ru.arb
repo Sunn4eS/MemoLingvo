@@ -6,5 +6,9 @@
   "register_screen_register": "Регистрация",
   "register_screen_email": "Электронная почта",
   "register_screen_password": "Пароль",
-  "register_screen_create_account": "Создать аккаунт"
+  "register_screen_create_account": "Создать аккаунт",
+  "settings_screen_title": "Настройки",
+  "settings_screen_change_language" : "Изменить язык",
+  "settings_screen_dark_mode": "Темная тема",
+  "settings_screen_logout": "Выйти из аккаунта"
 }

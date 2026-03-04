@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lingo_cards/features/auth/logic/auth_cubit.dart';
-import 'package:lingo_cards/features/auth/logic/auth_state.dart';
+import 'package:memo_lingvo/features/auth/logic/auth_cubit.dart';
+import 'package:memo_lingvo/features/auth/logic/auth_state.dart';
 
 class SplashScreen extends StatelessWidget {
   @override

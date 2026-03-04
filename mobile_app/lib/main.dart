@@ -1,20 +1,31 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:lingo_cards/core/localization/l10n/app_localizations.dart';
-import 'package:lingo_cards/features/auth/logic/auth_cubit.dart';
-import 'package:lingo_cards/features/auth/presentation/screens/register_screen.dart';
-import 'package:lingo_cards/features/auth/presentation/screens/splash_screen.dart';
-import 'package:lingo_cards/features/auth/presentation/screens/welcome_screen.dart';
-import 'package:lingo_cards/firebase_options.dart';
+import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
+import 'package:memo_lingvo/core/localization/locale_cubit.dart';
+import 'package:memo_lingvo/core/theme/theme_cubit.dart';
+import 'package:memo_lingvo/features/auth/logic/auth_cubit.dart';
+import 'package:memo_lingvo/features/auth/presentation/screens/register_screen.dart';
+import 'package:memo_lingvo/features/auth/presentation/screens/splash_screen.dart';
+import 'package:memo_lingvo/features/auth/presentation/screens/welcome_screen.dart';
+import 'package:memo_lingvo/firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lingo_cards/features/auth/data/repositories/auth_repository.dart';
+import 'package:memo_lingvo/features/auth/data/repositories/auth_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final locale = context.watch<LocaleCubit>().state;
+    final themeMode = context.watch<ThemeCubit>().state;
+
     return MaterialApp(
       title: 'MemoLingvo',
+      locale: locale,
+      themeMode: themeMode,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -36,16 +47,19 @@ class MyApp extends StatelessWidget {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  final prefs = await SharedPreferences.getInstance();
+  final authRepository = AuthRepository();
+
   runApp(
     MultiBlocProvider(
       providers: [
-        // RepositoryProvider для AuthRepository (неблоковый провайдер)
-        RepositoryProvider<AuthRepository>(create: (_) => AuthRepository()),
-        // BlocProvider для AuthCubit, который зависит от репозитория
-        BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(context.read<AuthRepository>()),
-        ),
+        RepositoryProvider.value(value: authRepository),
+        BlocProvider(create: (context) => AuthCubit(authRepository)),
+        BlocProvider(create: (context) => ThemeCubit(prefs)),
+        BlocProvider(create: (context) => LocaleCubit(prefs)),
       ],
       child: MyApp(),
     ),
