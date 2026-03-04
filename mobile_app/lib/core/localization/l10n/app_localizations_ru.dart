@@ -34,4 +34,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get register_screen_create_account => 'Создать аккаунт';
+
+  @override
+  String get settings_screen_title => 'Настройки';
+
+  @override
+  String get settings_screen_change_language => 'Изменить язык';
+
+  @override
+  String get settings_screen_dark_mode => 'Темная тема';
+
+  @override
+  String get settings_screen_logout => 'Выйти из аккаунта';
 }

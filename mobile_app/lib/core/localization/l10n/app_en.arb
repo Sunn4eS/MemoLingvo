@@ -7,5 +7,9 @@
   "register_screen_register": "Register",
   "register_screen_email": "Email",
   "register_screen_password": "Password",
-  "register_screen_create_account": "Create account"
+  "register_screen_create_account": "Create account",
+  "settings_screen_title": "Settings",
+  "settings_screen_change_language" : "Change language",
+  "settings_screen_dark_mode": "Dark theme",
+  "settings_screen_logout": "Log out"
 }

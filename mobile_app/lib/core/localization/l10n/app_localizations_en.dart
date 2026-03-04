@@ -34,4 +34,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get register_screen_create_account => 'Create account';
+
+  @override
+  String get settings_screen_title => 'Settings';
+
+  @override
+  String get settings_screen_change_language => 'Change language';
+
+  @override
+  String get settings_screen_dark_mode => 'Dark theme';
+
+  @override
+  String get settings_screen_logout => 'Log out';
 }

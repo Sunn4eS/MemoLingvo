@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lingo_cards/core/localization/l10n/app_localizations.dart';
+import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

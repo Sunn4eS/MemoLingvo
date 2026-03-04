@@ -151,6 +151,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create account'**
   String get register_screen_create_account;
+
+  /// No description provided for @settings_screen_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings_screen_title;
+
+  /// No description provided for @settings_screen_change_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Change language'**
+  String get settings_screen_change_language;
+
+  /// No description provided for @settings_screen_dark_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark theme'**
+  String get settings_screen_dark_mode;
+
+  /// No description provided for @settings_screen_logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out'**
+  String get settings_screen_logout;
 }
 
 class _AppLocalizationsDelegate
