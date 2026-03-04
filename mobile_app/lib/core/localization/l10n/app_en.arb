@@ -2,8 +2,10 @@
   "appTitle": "MemoLingvo",
   "welcome": "Welcome",
   "login": "Log in",
-  "register": "Register",
-  "email": "Email",
   "password": "Password",
-  "home_screen_startLearning": "Start learning (register)"
+  "welcome_screen_startLearning": "Start learning (register)",
+  "register_screen_register": "Register",
+  "register_screen_email": "Email",
+  "register_screen_password": "Password",
+  "register_screen_create_account": "Create account"
 }

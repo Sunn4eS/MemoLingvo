@@ -18,14 +18,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get login => 'Войти';
 
   @override
-  String get register => 'Регистрация';
+  String get password => 'Password';
 
   @override
-  String get email => 'Эл. почта';
+  String get welcome_screen_startLearning => 'Начать обучение (Регистрация)';
 
   @override
-  String get password => 'Пароль';
+  String get register_screen_register => 'Регистрация';
 
   @override
-  String get home_screen_startLearning => 'Начать обучение (Регистрация)';
+  String get register_screen_email => 'Электронная почта';
+
+  @override
+  String get register_screen_password => 'Пароль';
+
+  @override
+  String get register_screen_create_account => 'Создать аккаунт';
 }
