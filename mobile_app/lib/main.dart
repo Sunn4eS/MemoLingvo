@@ -10,7 +10,8 @@ import 'package:memo_lingvo/features/auth/presentation/screens/splash_screen.dar
 import 'package:memo_lingvo/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:memo_lingvo/firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lingo_cards/features/auth/data/repositories/auth_repository.dart';
+import 'package:memo_lingvo/features/auth/data/repositories/auth_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyApp extends StatelessWidget {
   @override
