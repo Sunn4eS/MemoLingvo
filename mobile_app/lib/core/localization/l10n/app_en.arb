@@ -1,9 +1,7 @@
 {
   "appTitle": "MemoLingvo",
-  "welcome": "Welcome",
-  "login": "Log in",
-  "password": "Password",
-  "welcome_screen_startLearning": "Start learning (register)",
+  "welcome_screen_register": "Start learning (register)",
+  "welcome_screen_login" : "Login",
   "register_screen_register": "Register",
   "register_screen_email": "Email",
   "register_screen_password": "Password",
@@ -11,5 +9,7 @@
   "settings_screen_title": "Settings",
   "settings_screen_change_language" : "Change language",
   "settings_screen_dark_mode": "Dark theme",
-  "settings_screen_logout": "Log out"
+  "settings_screen_logout": "Log out",
+  "login_screen_title" : "Login",
+  "login_screen_no_account" : "No account? Create"
 }

@@ -104,29 +104,17 @@ abstract class AppLocalizations {
   /// **'MemoLingvo'**
   String get appTitle;
 
-  /// No description provided for @welcome.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome'**
-  String get welcome;
-
-  /// No description provided for @login.
-  ///
-  /// In en, this message translates to:
-  /// **'Log in'**
-  String get login;
-
-  /// No description provided for @password.
-  ///
-  /// In en, this message translates to:
-  /// **'Password'**
-  String get password;
-
-  /// No description provided for @welcome_screen_startLearning.
+  /// No description provided for @welcome_screen_register.
   ///
   /// In en, this message translates to:
   /// **'Start learning (register)'**
-  String get welcome_screen_startLearning;
+  String get welcome_screen_register;
+
+  /// No description provided for @welcome_screen_login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get welcome_screen_login;
 
   /// No description provided for @register_screen_register.
   ///
@@ -175,6 +163,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log out'**
   String get settings_screen_logout;
+
+  /// No description provided for @login_screen_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login_screen_title;
+
+  /// No description provided for @login_screen_no_account.
+  ///
+  /// In en, this message translates to:
+  /// **'No account? Create'**
+  String get login_screen_no_account;
 }
 
 class _AppLocalizationsDelegate

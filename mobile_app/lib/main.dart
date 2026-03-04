@@ -5,9 +5,11 @@ import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/core/localization/locale_cubit.dart';
 import 'package:memo_lingvo/core/theme/theme_cubit.dart';
 import 'package:memo_lingvo/features/auth/logic/auth_cubit.dart';
+import 'package:memo_lingvo/features/auth/presentation/screens/login_sreen.dart';
 import 'package:memo_lingvo/features/auth/presentation/screens/register_screen.dart';
 import 'package:memo_lingvo/features/auth/presentation/screens/splash_screen.dart';
 import 'package:memo_lingvo/features/auth/presentation/screens/welcome_screen.dart';
+import 'package:memo_lingvo/features/home/presentation/screens/main_wrapper.dart';
 import 'package:memo_lingvo/firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/features/auth/data/repositories/auth_repository.dart';
@@ -26,21 +28,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
 
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: const [Locale('en'), Locale('ru')],
-      localeResolutionCallback: (locale, supportedLocales) {
-        return const Locale('ru');
-      },
+    
+      initialRoute: '/',
       routes: {
+        '/': (context) => SplashScreen(),
+        '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
         '/welcome': (context) => WelcomeScreen(),
+        '/home': (context) => MainWrapper(),
       },
-      home: SplashScreen(),
+      //home: SplashScreen(),
     );
   }
 }
