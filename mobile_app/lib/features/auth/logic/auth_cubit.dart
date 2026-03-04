@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lingo_cards/features/auth/data/repositories/auth_repository.dart';
-//import 'package:lingo_cards/features/auth/domain/entities/user.dart';
-import 'package:lingo_cards/features/auth/logic/auth_state.dart';
+import 'package:memo_lingvo/features/auth/data/repositories/auth_repository.dart';
+//import 'package:memo_lingvo/features/auth/domain/entities/user.dart';
+import 'package:memo_lingvo/features/auth/logic/auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _repository;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lingo_cards/core/localization/l10n/app_localizations.dart';
-import 'package:lingo_cards/features/auth/logic/auth_cubit.dart';
-import 'package:lingo_cards/features/auth/logic/auth_state.dart';
+import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
+import 'package:memo_lingvo/features/auth/logic/auth_cubit.dart';
+import 'package:memo_lingvo/features/auth/logic/auth_state.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
