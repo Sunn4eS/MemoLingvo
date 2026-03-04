@@ -12,16 +12,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'MemoLingvo';
 
   @override
-  String get welcome => 'Welcome';
+  String get welcome_screen_register => 'Start learning (register)';
 
   @override
-  String get login => 'Log in';
-
-  @override
-  String get password => 'Password';
-
-  @override
-  String get welcome_screen_startLearning => 'Start learning (register)';
+  String get welcome_screen_login => 'Login';
 
   @override
   String get register_screen_register => 'Register';
@@ -46,4 +40,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_screen_logout => 'Log out';
+
+  @override
+  String get login_screen_title => 'Login';
+
+  @override
+  String get login_screen_no_account => 'No account? Create';
 }

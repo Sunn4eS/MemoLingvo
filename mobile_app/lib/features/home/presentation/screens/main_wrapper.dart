@@ -11,9 +11,9 @@ class _MainWrapperState extends State<MainWrapper> {
 
   final List<Widget> _pages = [
     const Center(child: Text("Дом (Заглушка)")), // ЛР №1: Страница 1
-    const Center(child: Text("Выбор игры")),     // ЛР №1: Страница 2
+    const Center(child: Text("Выбор игры")), // ЛР №1: Страница 2
     const Center(child: Text("Профиль")),
-    SettingsScreen(),                            // ЛР №1: Страница 3
+    SettingsScreen(), // ЛР №1: Страница 3
   ];
 
   @override
@@ -21,28 +21,45 @@ class _MainWrapperState extends State<MainWrapper> {
     return Scaffold(
       body: _pages[_currentIndex],
       // Округлое меню внизу
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 30), // Отступы от краев
-        height: 70,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceVariant,
-          borderRadius: BorderRadius.circular(30), // Округление как в ТГ
-          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(30),
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (index) => setState(() => _currentIndex = index),
-            type: BottomNavigationBarType.fixed,
-            showSelectedLabels: false,
-            showUnselectedLabels: false,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: ""),
-              BottomNavigationBarItem(icon: Icon(Icons.videogame_asset_rounded), label: ""),
-              BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: ""),
-              BottomNavigationBarItem(icon: Icon(Icons.settings_rounded), label: ""),
-            ],
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          margin: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
+          height: 70,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10)],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BottomNavigationBar(
+              currentIndex: _currentIndex,
+              onTap: (index) => setState(() => _currentIndex = index),
+              type: BottomNavigationBarType.fixed,
+              showSelectedLabels: false,
+              showUnselectedLabels: false,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home_rounded),
+                  label: "",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.videogame_asset_rounded),
+                  label: "",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.person_rounded),
+                  label: "",
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings_rounded),
+                  label: "",
+                ),
+              ],
+            ),
           ),
         ),
       ),
