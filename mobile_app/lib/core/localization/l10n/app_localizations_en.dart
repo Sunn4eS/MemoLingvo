@@ -18,14 +18,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login => 'Log in';
 
   @override
-  String get register => 'Register';
-
-  @override
-  String get email => 'Email';
-
-  @override
   String get password => 'Password';
 
   @override
-  String get home_screen_startLearning => 'Start learning (register)';
+  String get welcome_screen_startLearning => 'Start learning (register)';
+
+  @override
+  String get register_screen_register => 'Register';
+
+  @override
+  String get register_screen_email => 'Email';
+
+  @override
+  String get register_screen_password => 'Password';
+
+  @override
+  String get register_screen_create_account => 'Create account';
 }

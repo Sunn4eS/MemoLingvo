@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lingo_cards/features/auth/logic/auth_cubit.dart';
 import 'package:lingo_cards/features/auth/logic/auth_state.dart';
@@ -10,8 +9,8 @@ class SplashScreen extends StatelessWidget {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         state.whenOrNull(
-          authenticated: (_) => Navigator.pushReplacement(context, '/home'),
-          unauthenticated: () => Navigator.pushReplacement(context, '/welcome'),
+      //   authenticated: (_) => Navigator.pushReplacement(context, '/home'),
+         unauthenticated: () => Navigator.pushReplacementNamed(context, '/welcome'),
         );
       },
       child: const Scaffold(
@@ -19,7 +18,7 @@ class SplashScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.translate, size: 100, color: Colors.blueAccent),
+              Icon(Icons.stars, size: 100, color: Colors.blueAccent),
               SizedBox(height: 20),
               CircularProgressIndicator(),
             ],

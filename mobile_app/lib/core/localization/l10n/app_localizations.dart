@@ -116,29 +116,41 @@ abstract class AppLocalizations {
   /// **'Log in'**
   String get login;
 
-  /// No description provided for @register.
-  ///
-  /// In en, this message translates to:
-  /// **'Register'**
-  String get register;
-
-  /// No description provided for @email.
-  ///
-  /// In en, this message translates to:
-  /// **'Email'**
-  String get email;
-
   /// No description provided for @password.
   ///
   /// In en, this message translates to:
   /// **'Password'**
   String get password;
 
-  /// No description provided for @home_screen_startLearning.
+  /// No description provided for @welcome_screen_startLearning.
   ///
   /// In en, this message translates to:
   /// **'Start learning (register)'**
-  String get home_screen_startLearning;
+  String get welcome_screen_startLearning;
+
+  /// No description provided for @register_screen_register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register_screen_register;
+
+  /// No description provided for @register_screen_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get register_screen_email;
+
+  /// No description provided for @register_screen_password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get register_screen_password;
+
+  /// No description provided for @register_screen_create_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get register_screen_create_account;
 }
 
 class _AppLocalizationsDelegate
