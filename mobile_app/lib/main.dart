@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/core/localization/locale_cubit.dart';
 import 'package:memo_lingvo/core/theme/theme_cubit.dart';
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
 
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: const [Locale('en'), Locale('ru')],
-    
+
       initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),
