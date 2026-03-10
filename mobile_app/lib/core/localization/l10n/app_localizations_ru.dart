@@ -62,4 +62,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get decks_view__show_add_deck_dialog_create => 'Создать';
+
+  @override
+  String get deck_card_show_action_menu_edit_title => 'Редактировать название';
+
+  @override
+  String get deck_card_show_action_menu_delete_deck => 'Удалить колоду';
 }

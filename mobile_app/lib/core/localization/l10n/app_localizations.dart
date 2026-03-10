@@ -205,6 +205,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create'**
   String get decks_view__show_add_deck_dialog_create;
+
+  /// No description provided for @deck_card_show_action_menu_edit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit title'**
+  String get deck_card_show_action_menu_edit_title;
+
+  /// No description provided for @deck_card_show_action_menu_delete_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete deck'**
+  String get deck_card_show_action_menu_delete_deck;
 }
 
 class _AppLocalizationsDelegate

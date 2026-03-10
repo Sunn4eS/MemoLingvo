@@ -16,5 +16,7 @@
   "decks_view__show_add_deck_dialog_new_deck" : "Новая колода",
   "decks_view__show_add_deck_dialog_hint_title" : "Название (например, Хобби)",
   "decks_view__show_add_deck_dialog_cancel" : "Отмена",
-  "decks_view__show_add_deck_dialog_create" : "Создать"
+  "decks_view__show_add_deck_dialog_create" : "Создать",
+  "deck_card_show_action_menu_edit_title": "Редактировать название",
+  "deck_card_show_action_menu_delete_deck": "Удалить колоду"
 }
