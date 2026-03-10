@@ -63,4 +63,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get decks_view__show_add_deck_dialog_create => 'Create';
+
+  @override
+  String get deck_card_show_action_menu_edit_title => 'Edit title';
+
+  @override
+  String get deck_card_show_action_menu_delete_deck => 'Delete deck';
 }

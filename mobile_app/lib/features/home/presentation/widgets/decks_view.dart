@@ -89,6 +89,7 @@ class _DeckCard extends StatelessWidget {
         onTap: () {
           //TODO Переход к карточкам
         },
+        onLongPress: () => ,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -103,5 +104,43 @@ class _DeckCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _showActionMenu(BuildContext context, Deck deck) {
+    
+    final l10n = AppLocalizations.of(context)!;
+    
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), 
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: Text(l10n.deck_card_show_action_menu_edit_title),
+              onTap: () {
+                Navigator.pop(context);
+                _showEditDialog(context, deck);
+                //TODO edit dialog
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete, color: Colors.red),
+              title: Text(
+                l10n.deck_card_show_action_menu_delete_deck,
+                style: TextStyle(color: Colors.red)
+              ),
+              onTap: () { 
+                context.read<DeckCubit>().deleteDeck(deck.id);
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        )
+      ),
+    );
+
   }
 }

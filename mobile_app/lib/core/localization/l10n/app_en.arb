@@ -16,5 +16,7 @@
   "decks_view__show_add_deck_dialog_new_deck" : "New deck",
   "decks_view__show_add_deck_dialog_hint_title" : "Title (example, Hobbies)",
   "decks_view__show_add_deck_dialog_cancel" : "Cancel",
-  "decks_view__show_add_deck_dialog_create" : "Create"
+  "decks_view__show_add_deck_dialog_create" : "Create",
+  "deck_card_show_action_menu_edit_title": "Edit title",
+  "deck_card_show_action_menu_delete_deck": "Delete deck"
 }
