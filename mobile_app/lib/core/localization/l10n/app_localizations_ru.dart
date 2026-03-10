@@ -46,4 +46,20 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get login_screen_no_account => 'Нет аккаунта? Создать';
+
+  @override
+  String get decks_view_no_decks => 'Здесь пока нет колод. Создайте первую!';
+
+  @override
+  String get decks_view__show_add_deck_dialog_new_deck => 'Новая колода';
+
+  @override
+  String get decks_view__show_add_deck_dialog_hint_title =>
+      'Название (например, Хобби)';
+
+  @override
+  String get decks_view__show_add_deck_dialog_cancel => 'Отмена';
+
+  @override
+  String get decks_view__show_add_deck_dialog_create => 'Создать';
 }
