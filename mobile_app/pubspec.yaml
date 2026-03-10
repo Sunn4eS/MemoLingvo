@@ -30,7 +30,7 @@ dependencies:
 
   # Data & Network
   dio: ^5.3.0                   # HTTP Client (как Retrofit/OkHttp)
-  drift: ^2.10.0                # Local DB (SQLite, как Room)
+  drift: ^2.14.0                # Local DB (SQLite, как Room)
   sqlite3_flutter_libs: ^0.6.0+eol
   path_provider: ^2.1.0
   path: ^1.8.3
@@ -52,7 +52,7 @@ dev_dependencies:
   build_runner: ^2.4.6          # Кодогенерация (как KAPT/KSP)
   freezed: ^3.2.5
   json_serializable:  
-  drift_dev: ^2.10.0            # Генератор для БД
+  drift_dev: ^2.14.0            # Генератор для БД
 
 
 

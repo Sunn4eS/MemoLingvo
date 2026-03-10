@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:memo_lingvo/app_providers.dart';
+import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/core/localization/locale_cubit.dart';
 import 'package:memo_lingvo/core/theme/theme_cubit.dart';
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
 
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: const [Locale('en'), Locale('ru')],
-    
+
       initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),
@@ -49,18 +50,15 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  final database = AppDatabase();
   final prefs = await SharedPreferences.getInstance();
-  final authRepository = AuthRepository();
+  //final authRepository = AuthRepository();
 
   runApp(
-    MultiBlocProvider(
-      providers: [
-        RepositoryProvider.value(value: authRepository),
-        BlocProvider(create: (context) => AuthCubit(authRepository)),
-        BlocProvider(create: (context) => ThemeCubit(prefs)),
-        BlocProvider(create: (context) => LocaleCubit(prefs)),
-      ],
-      child: MyApp(),
+    AppProviders(
+      child: MyApp(), 
+      database: database, 
+      prefs: prefs
     ),
   );
 }
