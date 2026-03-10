@@ -46,4 +46,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get login_screen_no_account => 'No account? Create';
+
+  @override
+  String get decks_view_no_decks =>
+      'There aren\'t any decks here. Create first!';
+
+  @override
+  String get decks_view__show_add_deck_dialog_new_deck => 'New deck';
+
+  @override
+  String get decks_view__show_add_deck_dialog_hint_title =>
+      'Title (example, Hobbies)';
+
+  @override
+  String get decks_view__show_add_deck_dialog_cancel => 'Cancel';
+
+  @override
+  String get decks_view__show_add_deck_dialog_create => 'Create';
 }

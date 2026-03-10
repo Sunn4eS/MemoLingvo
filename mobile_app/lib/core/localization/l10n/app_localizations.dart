@@ -175,6 +175,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No account? Create'**
   String get login_screen_no_account;
+
+  /// No description provided for @decks_view_no_decks.
+  ///
+  /// In en, this message translates to:
+  /// **'There aren\'t any decks here. Create first!'**
+  String get decks_view_no_decks;
+
+  /// No description provided for @decks_view__show_add_deck_dialog_new_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'New deck'**
+  String get decks_view__show_add_deck_dialog_new_deck;
+
+  /// No description provided for @decks_view__show_add_deck_dialog_hint_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title (example, Hobbies)'**
+  String get decks_view__show_add_deck_dialog_hint_title;
+
+  /// No description provided for @decks_view__show_add_deck_dialog_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get decks_view__show_add_deck_dialog_cancel;
+
+  /// No description provided for @decks_view__show_add_deck_dialog_create.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get decks_view__show_add_deck_dialog_create;
 }
 
 class _AppLocalizationsDelegate
