@@ -11,5 +11,10 @@
   "settings_screen_dark_mode": "Dark theme",
   "settings_screen_logout": "Log out",
   "login_screen_title" : "Login",
-  "login_screen_no_account" : "No account? Create"
+  "login_screen_no_account" : "No account? Create",
+  "decks_view_no_decks" : "There aren't any decks here. Create first!",
+  "decks_view__show_add_deck_dialog_new_deck" : "New deck",
+  "decks_view__show_add_deck_dialog_hint_title" : "Title (example, Hobbies)",
+  "decks_view__show_add_deck_dialog_cancel" : "Cancel",
+  "decks_view__show_add_deck_dialog_create" : "Create"
 }

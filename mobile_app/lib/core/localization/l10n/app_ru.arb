@@ -11,5 +11,10 @@
   "settings_screen_dark_mode": "Темная тема",
   "settings_screen_logout": "Выйти из аккаунта",
   "login_screen_title" : "Войти",
-  "login_screen_no_account" : "Нет аккаунта? Создать"
+  "login_screen_no_account" : "Нет аккаунта? Создать",
+  "decks_view_no_decks" : "Здесь пока нет колод. Создайте первую!",
+  "decks_view__show_add_deck_dialog_new_deck" : "Новая колода",
+  "decks_view__show_add_deck_dialog_hint_title" : "Название (например, Хобби)",
+  "decks_view__show_add_deck_dialog_cancel" : "Отмена",
+  "decks_view__show_add_deck_dialog_create" : "Создать"
 }
