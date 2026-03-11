@@ -119,5 +119,5 @@ class AppLocalizationsRu extends AppLocalizations {
   String get add_card_screen__add_example_hint => 'Текст примера';
 
   @override
-  String get add_card_screen__required_fild => 'Обязательное поле';
+  String get add_card_screen__required_field => 'Обязательное поле';
 }

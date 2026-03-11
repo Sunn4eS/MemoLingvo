@@ -21,7 +21,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
   final List<TextEditingController> _examplecontrollers = [];
 
-  void addExampleField() {
+  void _addExampleField() {
     setState(() {
       _examplecontrollers.add(TextEditingController());
     });
@@ -77,7 +77,105 @@ class _AddCardScreenState extends State<AddCardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.add_card_screen__new_card),
-      )
+        actions: [
+          IconButton(onPressed: _saveCard, icon: const Icon(Icons.check)),
+        ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            _buildTextField(
+              _wordController,
+              l10n.add_card_screen__word,
+              isRequired: true,
+            ),
+            const SizedBox(height: 12),
+            _buildTextField(
+              _translationController,
+              l10n.add_card_screen__translation,
+              isRequired: true,
+            ),
+            const SizedBox(height: 12),
+            _buildTextField(
+              _transcriptionController,
+              l10n.add_card_screen__transcription,
+            ),
+            const SizedBox(height: 12),
+            _buildTextField(
+              _meaningController,
+              l10n.add_card_screen__meaning,
+              maxLines: 2,
+            ),
+
+            const Divider(height: 40),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  l10n.add_card_screen__examples,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                TextButton.icon(
+                  onPressed: _addExampleField,
+                  icon: const Icon(Icons.add),
+                  label: Text(l10n.add_card_screen__add_example),
+                ),
+              ],
+            ),
+
+            ..._examplecontrollers.asMap().entries.map((entry) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: entry.value,
+                        decoration: InputDecoration(
+                          hintText: l10n.add_card_screen__add_example_hint,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)
+                          ),
+                        ),
+                      ),
+                  
+                    ),
+                    IconButton(
+                      onPressed: () => _removeExampleField(entry.key), 
+                      icon: const Icon(Icons.delete_outline, color: Colors.red,),
+                    ),
+                  ],
+                ),
+              );            
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    bool isRequired = false,
+    int maxLines = 1,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      validator: (value) {
+        if (isRequired && (value == null || value.trim().isEmpty)) {
+          return AppLocalizations.of(context)!.add_card_screen__required_field;
+        }
+        return null;
+      },
     );
   }
 }
