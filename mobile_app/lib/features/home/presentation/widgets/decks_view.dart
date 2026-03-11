@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
@@ -12,9 +13,9 @@ class DecksView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      body: BlocBuilder<DeckCubit, List<Deck>>(
-        builder: (context, decks) {
-          if (decks.isEmpty) {
+      body: BlocBuilder<DeckCubit, List<DeckWithCount>>(
+        builder: (context, items) {
+          if (items.isEmpty) {
             return Center(child: Text(l10n.decks_view_no_decks));
           }
 
@@ -25,10 +26,10 @@ class DecksView extends StatelessWidget {
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
             ),
-            itemCount: decks.length,
+            itemCount: items.length,
             itemBuilder: (context, index) {
-              final deck = decks[index];
-              return _DeckCard(deck: deck);
+              final deck = items[index];
+              return _DeckCard(item: deck);
             },
           );
         },
@@ -77,8 +78,8 @@ class DecksView extends StatelessWidget {
 }
 
 class _DeckCard extends StatelessWidget {
-  final Deck deck;
-  const _DeckCard({required this.deck});
+  final DeckWithCount item;
+  const _DeckCard({required this.item});
 
   @override
   Widget build(BuildContext context) {
@@ -89,15 +90,19 @@ class _DeckCard extends StatelessWidget {
         onTap: () {
           //TODO Переход к карточкам
         },
-        onLongPress: () => ,
-        child: Column(
+        onLongPress: () => _showActionMenu(context, item.deck),
+        child: material.Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.folder_open, size: 40, color: Colors.blue),
             const SizedBox(height: 8),
             Text(
-              deck.title,
+              item.deck.title,
               style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              "Карточек: ${item.cardCount}",
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
             ),
             //TODO счетчик карты из бд
           ],
@@ -107,40 +112,101 @@ class _DeckCard extends StatelessWidget {
   }
 
   void _showActionMenu(BuildContext context, Deck deck) {
-    
     final l10n = AppLocalizations.of(context)!;
-    
+
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), 
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (context) => SafeArea(
-        child: Column(
+        child: material.Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.edit),
-              title: Text(l10n.deck_card_show_action_menu_edit_title),
+              title: Text(l10n.deck_card__show_action_menu_edit_title),
               onTap: () {
                 Navigator.pop(context);
-                _showEditDialog(context, deck);
+                 _showEditDialog(context, deck);
                 //TODO edit dialog
               },
             ),
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: Text(
-                l10n.deck_card_show_action_menu_delete_deck,
-                style: TextStyle(color: Colors.red)
+                l10n.deck_card__show_action_menu_delete_deck,
+                style: TextStyle(color: Colors.red),
               ),
-              onTap: () { 
+              onTap: () {
                 context.read<DeckCubit>().deleteDeck(deck.id);
                 Navigator.pop(context);
               },
             ),
           ],
-        )
+        ),
       ),
     );
+  }
 
+  void _showEditDialog(BuildContext context, Deck deck) {
+    final titleController = TextEditingController(text: deck.title);
+    final descriptionController = TextEditingController(
+      text: deck.description ?? '',
+    );
+    final l10n = AppLocalizations.of(context)!;
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.decks_view__show_edit_deck_dialog_edit_deck),
+        content: material.Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(
+                hintText: l10n.decks_view__show_edit_deck_dialog_hint_title,
+                labelText: l10n.decks_view__show_edit_deck_dialog_title_label,
+              ),
+              autofocus: true,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: descriptionController,
+              decoration: InputDecoration(
+                hintText:
+                    l10n.decks_view__show_edit_deck_dialog_hint_description,
+                labelText:
+                    l10n.decks_view__show_edit_deck_dialog_description_label,
+              ),
+              maxLines: 3,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.decks_view__show_edit_deck_dialog_cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (titleController.text.trim().isEmpty) {
+                return;
+              }
+              final updatedDeck = Deck(
+                id: deck.id,
+                title: titleController.text.trim(),
+                description: descriptionController.text.trim(),
+              );
+              context.read<DeckCubit>().updateDeck(updatedDeck);
+              Navigator.pop(context);
+            },
+
+            child: Text(l10n.decks_view__show_edit_deck_dialog_save),
+          ),
+        ],
+      ),
+    );
   }
 }

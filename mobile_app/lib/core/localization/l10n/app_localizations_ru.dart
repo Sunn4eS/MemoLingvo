@@ -64,8 +64,60 @@ class AppLocalizationsRu extends AppLocalizations {
   String get decks_view__show_add_deck_dialog_create => 'Создать';
 
   @override
-  String get deck_card_show_action_menu_edit_title => 'Редактировать название';
+  String get deck_card__show_action_menu_edit_title => 'Редактировать название';
 
   @override
-  String get deck_card_show_action_menu_delete_deck => 'Удалить колоду';
+  String get deck_card__show_action_menu_delete_deck => 'Удалить колоду';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_edit_deck =>
+      'Редактировать колоду';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_title_label => 'Название';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_hint_title =>
+      'Введите название колоды';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_description_label =>
+      'Описание (необязательно)';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_hint_description =>
+      'Введите описание';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_save => 'Сохранить';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_cancel => 'Отмена';
+
+  @override
+  String get add_card_screen__new_card => 'Добавить карточку';
+
+  @override
+  String get add_card_screen__word => 'Слово';
+
+  @override
+  String get add_card_screen__translation => 'Перевод';
+
+  @override
+  String get add_card_screen__transcription => 'Транскрибция';
+
+  @override
+  String get add_card_screen__meaning => 'Значение/Подсказка';
+
+  @override
+  String get add_card_screen__examples => 'Примеры использоавния';
+
+  @override
+  String get add_card_screen__add_example => 'Добавить';
+
+  @override
+  String get add_card_screen__add_example_hint => 'Текст примера';
+
+  @override
+  String get add_card_screen__required_fild => 'Обязательное поле';
 }
