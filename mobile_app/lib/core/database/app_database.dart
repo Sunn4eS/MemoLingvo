@@ -74,7 +74,7 @@ class AppDatabase extends _$AppDatabase {
   );
 
   //DeckWithCount
-  Stream<List<DeckWithCount>> watchDcksWithCardCount() {
+  Stream<List<DeckWithCount>> watchDecksWithCardCount() {
     final countColumn = cards.id.count();
     final query = select(
       decks,

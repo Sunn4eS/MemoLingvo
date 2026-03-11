@@ -6,6 +6,14 @@ class CardRepository {
 
   CardRepository(this._db);
 
+  Stream<List<Card>> watchAllCards() => _db.select(_db.cards).watch();
+
+  Stream<List<Card>> watchMasteredCards() {
+    return (_db.select(
+      _db.cards,
+    )..where((t) => t.status.equals(LearningStatus.mastered.index))).watch();
+  }
+
   Stream<List<Card>> watchCards(int deckId) => _db.watchCardsInDeck(deckId);
 
   Future<int> addCard({

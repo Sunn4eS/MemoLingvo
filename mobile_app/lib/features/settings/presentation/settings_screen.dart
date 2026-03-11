@@ -52,7 +52,6 @@ class SettingsScreen extends StatelessWidget {
                 value: mode == ThemeMode.dark,
                 onChanged: (bool value) {
                   context.read<ThemeCubit>().toggleTheme(value);
-                  //TODO: Theme Cubit
                 },
               );
             },
@@ -66,7 +65,6 @@ class SettingsScreen extends StatelessWidget {
               style: const TextStyle(color: Colors.red),
             ),
             onTap: () {
-              //TODO: logout
               context.read<AuthCubit>().logout();
               Navigator.of(
                 context,
