@@ -34,5 +34,5 @@
   "add_card_screen__examples": "Примеры использоавния",
   "add_card_screen__add_example": "Добавить",
   "add_card_screen__add_example_hint": "Текст примера",
-  "add_card_screen__required_fild": "Обязательное поле"
+  "add_card_screen__required_field": "Обязательное поле"
 }

@@ -308,11 +308,11 @@ abstract class AppLocalizations {
   /// **'Example text'**
   String get add_card_screen__add_example_hint;
 
-  /// No description provided for @add_card_screen__required_fild.
+  /// No description provided for @add_card_screen__required_field.
   ///
   /// In en, this message translates to:
   /// **'Required field'**
-  String get add_card_screen__required_fild;
+  String get add_card_screen__required_field;
 }
 
 class _AppLocalizationsDelegate

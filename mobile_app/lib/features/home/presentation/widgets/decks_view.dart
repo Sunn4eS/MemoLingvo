@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
+import 'package:memo_lingvo/features/cards/presentation/screens/add_card_screen.dart';
 import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
 
 class DecksView extends StatelessWidget {
@@ -86,27 +87,51 @@ class _DeckCard extends StatelessWidget {
     return material.Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: InkWell(
-        onTap: () {
-          //TODO Переход к карточкам
-        },
-        onLongPress: () => _showActionMenu(context, item.deck),
-        child: material.Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.folder_open, size: 40, color: Colors.blue),
-            const SizedBox(height: 8),
-            Text(
-              item.deck.title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: () {
+              //TODO train screen
+
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => AddCardScreen(deckId: item.deck.id),
+              //   ),
+              // );
+            },
+
+            //onLongPress: () => _showActionMenu(context, item.deck),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: material.Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.folder_open, size: 40, color: Colors.blue),
+                  const SizedBox(height: 8),
+                  Text(
+                    item.deck.title,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "Карточек: ${item.cardCount}",
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  //TODO счетчик карты из бд
+                ],
+              ),
             ),
-            Text(
-              "Карточек: ${item.cardCount}",
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+
+          Positioned(
+            top: 4,
+            right: 4,
+            child: IconButton(
+              onPressed: () => _showActionMenu(context, item.deck),
+              icon: const Icon(Icons.more_vert, size: 20),
             ),
-            //TODO счетчик карты из бд
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -128,7 +153,7 @@ class _DeckCard extends StatelessWidget {
               title: Text(l10n.deck_card__show_action_menu_edit_title),
               onTap: () {
                 Navigator.pop(context);
-                 _showEditDialog(context, deck);
+                _showEditDialog(context, deck);
                 //TODO edit dialog
               },
             ),
