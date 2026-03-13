@@ -36,5 +36,9 @@
   "add_card_screen__add_example_hint": "Текст примера",
   "add_card_screen__required_field": "Обязательное поле",
   "manage_deck_screen__cards_list_title": "Список карточек",
-  "manage_deck_screen__no_cards": "Нет карт в колоде"
+  "manage_deck_screen__no_cards": "Нет карт в колоде",
+  "trainig_screen__training": "Тренировка",
+  "trainig_screen__training_done": "Отлично! Все слова пройдены.",
+  "flash_card__tap_to_flip": "Нажмите, чтобы перевернуть"
+
 }

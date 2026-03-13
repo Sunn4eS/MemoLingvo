@@ -5,6 +5,7 @@ import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/features/cards/presentation/screens/add_card_screen.dart';
+import 'package:memo_lingvo/features/cards/presentation/screens/training_screen.dart';
 import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
 import 'package:memo_lingvo/features/decks/presentation/screens/manage_deck_screen.dart';
 
@@ -92,7 +93,17 @@ class _DeckCard extends StatelessWidget {
         children: [
           InkWell(
             onTap: () {
-              //TODO train screen
+              Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => TrainingScreen(deckId: item.deck.id),
+    ),
+  );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => TrainigScreen()),
+              // );
+              // //TODO train screen
 
               // Navigator.push(
               //   context,
@@ -155,7 +166,7 @@ class _DeckCard extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
-                  context, 
+                  context,
                   MaterialPageRoute(
                     builder: (_) => ManageDeckScreen(deck: deck),
                   ),

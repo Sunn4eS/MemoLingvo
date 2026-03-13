@@ -325,6 +325,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No cards in deck'**
   String get manage_deck_screen__no_cards;
+
+  /// No description provided for @trainig_screen__training.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get trainig_screen__training;
+
+  /// No description provided for @trainig_screen__training_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent! All words complete.'**
+  String get trainig_screen__training_done;
+
+  /// No description provided for @flash_card__tap_to_flip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to flip'**
+  String get flash_card__tap_to_flip;
 }
 
 class _AppLocalizationsDelegate
