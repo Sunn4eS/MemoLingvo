@@ -120,4 +120,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get add_card_screen__required_field => 'Обязательное поле';
+
+  @override
+  String get manage_deck_screen__cards_list_title => 'Список карточек';
+
+  @override
+  String get manage_deck_screen__no_cards => 'Нет карт в колоде';
 }

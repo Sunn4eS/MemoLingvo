@@ -119,4 +119,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get add_card_screen__required_field => 'Required field';
+
+  @override
+  String get manage_deck_screen__cards_list_title => 'Cards list';
+
+  @override
+  String get manage_deck_screen__no_cards => 'No cards in deck';
 }

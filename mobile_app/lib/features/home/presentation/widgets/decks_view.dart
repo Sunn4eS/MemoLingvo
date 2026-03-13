@@ -6,6 +6,7 @@ import 'package:flutter/material.dart' as material;
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/features/cards/presentation/screens/add_card_screen.dart';
 import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
+import 'package:memo_lingvo/features/decks/presentation/screens/manage_deck_screen.dart';
 
 class DecksView extends StatelessWidget {
   DecksView({super.key});
@@ -153,8 +154,12 @@ class _DeckCard extends StatelessWidget {
               title: Text(l10n.deck_card__show_action_menu_edit_title),
               onTap: () {
                 Navigator.pop(context);
-                _showEditDialog(context, deck);
-                //TODO edit dialog
+                Navigator.push(
+                  context, 
+                  MaterialPageRoute(
+                    builder: (_) => ManageDeckScreen(deck: deck),
+                  ),
+                );
               },
             ),
             ListTile(
@@ -170,67 +175,6 @@ class _DeckCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showEditDialog(BuildContext context, Deck deck) {
-    final titleController = TextEditingController(text: deck.title);
-    final descriptionController = TextEditingController(
-      text: deck.description ?? '',
-    );
-    final l10n = AppLocalizations.of(context)!;
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.decks_view__show_edit_deck_dialog_edit_deck),
-        content: material.Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: titleController,
-              decoration: InputDecoration(
-                hintText: l10n.decks_view__show_edit_deck_dialog_hint_title,
-                labelText: l10n.decks_view__show_edit_deck_dialog_title_label,
-              ),
-              autofocus: true,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: descriptionController,
-              decoration: InputDecoration(
-                hintText:
-                    l10n.decks_view__show_edit_deck_dialog_hint_description,
-                labelText:
-                    l10n.decks_view__show_edit_deck_dialog_description_label,
-              ),
-              maxLines: 3,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.decks_view__show_edit_deck_dialog_cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (titleController.text.trim().isEmpty) {
-                return;
-              }
-              final updatedDeck = Deck(
-                id: deck.id,
-                title: titleController.text.trim(),
-                description: descriptionController.text.trim(),
-              );
-              context.read<DeckCubit>().updateDeck(updatedDeck);
-              Navigator.pop(context);
-            },
-
-            child: Text(l10n.decks_view__show_edit_deck_dialog_save),
-          ),
-        ],
       ),
     );
   }
