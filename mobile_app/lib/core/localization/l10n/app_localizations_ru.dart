@@ -62,4 +62,77 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get decks_view__show_add_deck_dialog_create => 'Создать';
+
+  @override
+  String get deck_card__show_action_menu_edit_title => 'Редактировать название';
+
+  @override
+  String get deck_card__show_action_menu_delete_deck => 'Удалить колоду';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_edit_deck =>
+      'Редактировать колоду';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_title_label => 'Название';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_hint_title =>
+      'Введите название колоды';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_description_label =>
+      'Описание (необязательно)';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_hint_description =>
+      'Введите описание';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_save => 'Сохранить';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_cancel => 'Отмена';
+
+  @override
+  String get add_card_screen__new_card => 'Добавить карточку';
+
+  @override
+  String get add_card_screen__word => 'Слово';
+
+  @override
+  String get add_card_screen__translation => 'Перевод';
+
+  @override
+  String get add_card_screen__transcription => 'Транскрибция';
+
+  @override
+  String get add_card_screen__meaning => 'Значение/Подсказка';
+
+  @override
+  String get add_card_screen__examples => 'Примеры использоавния';
+
+  @override
+  String get add_card_screen__add_example => 'Добавить';
+
+  @override
+  String get add_card_screen__add_example_hint => 'Текст примера';
+
+  @override
+  String get add_card_screen__required_field => 'Обязательное поле';
+
+  @override
+  String get manage_deck_screen__cards_list_title => 'Список карточек';
+
+  @override
+  String get manage_deck_screen__no_cards => 'Нет карт в колоде';
+
+  @override
+  String get trainig_screen__training => 'Тренировка';
+
+  @override
+  String get trainig_screen__training_done => 'Отлично! Все слова пройдены.';
+
+  @override
+  String get flash_card__tap_to_flip => 'Нажмите, чтобы перевернуть';
 }
