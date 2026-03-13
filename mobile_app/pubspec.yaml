@@ -44,6 +44,10 @@ dependencies:
   firebase_auth: ^5.5.0  # или выше до 6.x
   google_sign_in: ^6.2.1
 
+
+  #Swipe
+  flutter_card_swiper: ^7.0.0
+
   
   
 dev_dependencies:

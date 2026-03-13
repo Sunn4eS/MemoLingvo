@@ -34,5 +34,7 @@
   "add_card_screen__examples": "Примеры использоавния",
   "add_card_screen__add_example": "Добавить",
   "add_card_screen__add_example_hint": "Текст примера",
-  "add_card_screen__required_field": "Обязательное поле"
+  "add_card_screen__required_field": "Обязательное поле",
+  "manage_deck_screen__cards_list_title": "Список карточек",
+  "manage_deck_screen__no_cards": "Нет карт в колоде"
 }

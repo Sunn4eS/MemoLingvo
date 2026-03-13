@@ -313,6 +313,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Required field'**
   String get add_card_screen__required_field;
+
+  /// No description provided for @manage_deck_screen__cards_list_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards list'**
+  String get manage_deck_screen__cards_list_title;
+
+  /// No description provided for @manage_deck_screen__no_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'No cards in deck'**
+  String get manage_deck_screen__no_cards;
 }
 
 class _AppLocalizationsDelegate
