@@ -126,4 +126,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get manage_deck_screen__no_cards => 'Нет карт в колоде';
+
+  @override
+  String get trainig_screen__training => 'Тренировка';
+
+  @override
+  String get trainig_screen__training_done => 'Отлично! Все слова пройдены.';
+
+  @override
+  String get flash_card__tap_to_flip => 'Нажмите, чтобы перевернуть';
 }

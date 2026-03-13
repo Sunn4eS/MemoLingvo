@@ -125,4 +125,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get manage_deck_screen__no_cards => 'No cards in deck';
+
+  @override
+  String get trainig_screen__training => 'Training';
+
+  @override
+  String get trainig_screen__training_done => 'Excellent! All words complete.';
+
+  @override
+  String get flash_card__tap_to_flip => 'Tap to flip';
 }
