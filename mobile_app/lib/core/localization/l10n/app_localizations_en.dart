@@ -63,4 +63,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get decks_view__show_add_deck_dialog_create => 'Create';
+
+  @override
+  String get deck_card__show_action_menu_edit_title => 'Edit title';
+
+  @override
+  String get deck_card__show_action_menu_delete_deck => 'Delete deck';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_edit_deck => 'Edit deck';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_title_label => 'Title';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_hint_title => 'Enter deck title';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_description_label =>
+      'Description (optional)';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_hint_description =>
+      'Enter description';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_save => 'Save';
+
+  @override
+  String get decks_view__show_edit_deck_dialog_cancel => 'Cancel';
+
+  @override
+  String get add_card_screen__new_card => 'New card';
+
+  @override
+  String get add_card_screen__word => 'Word';
+
+  @override
+  String get add_card_screen__translation => 'Translation';
+
+  @override
+  String get add_card_screen__transcription => 'Transcription';
+
+  @override
+  String get add_card_screen__meaning => 'Meaning/Hint';
+
+  @override
+  String get add_card_screen__examples => 'Examples of using';
+
+  @override
+  String get add_card_screen__add_example => 'Add';
+
+  @override
+  String get add_card_screen__add_example_hint => 'Example text';
+
+  @override
+  String get add_card_screen__required_field => 'Required field';
+
+  @override
+  String get manage_deck_screen__cards_list_title => 'Cards list';
+
+  @override
+  String get manage_deck_screen__no_cards => 'No cards in deck';
+
+  @override
+  String get trainig_screen__training => 'Training';
+
+  @override
+  String get trainig_screen__training_done => 'Excellent! All words complete.';
+
+  @override
+  String get flash_card__tap_to_flip => 'Tap to flip';
 }

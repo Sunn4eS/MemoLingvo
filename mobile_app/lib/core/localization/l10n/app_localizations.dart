@@ -205,6 +205,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create'**
   String get decks_view__show_add_deck_dialog_create;
+
+  /// No description provided for @deck_card__show_action_menu_edit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit title'**
+  String get deck_card__show_action_menu_edit_title;
+
+  /// No description provided for @deck_card__show_action_menu_delete_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete deck'**
+  String get deck_card__show_action_menu_delete_deck;
+
+  /// No description provided for @decks_view__show_edit_deck_dialog_edit_deck.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit deck'**
+  String get decks_view__show_edit_deck_dialog_edit_deck;
+
+  /// No description provided for @decks_view__show_edit_deck_dialog_title_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get decks_view__show_edit_deck_dialog_title_label;
+
+  /// No description provided for @decks_view__show_edit_deck_dialog_hint_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter deck title'**
+  String get decks_view__show_edit_deck_dialog_hint_title;
+
+  /// No description provided for @decks_view__show_edit_deck_dialog_description_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get decks_view__show_edit_deck_dialog_description_label;
+
+  /// No description provided for @decks_view__show_edit_deck_dialog_hint_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter description'**
+  String get decks_view__show_edit_deck_dialog_hint_description;
+
+  /// No description provided for @decks_view__show_edit_deck_dialog_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get decks_view__show_edit_deck_dialog_save;
+
+  /// No description provided for @decks_view__show_edit_deck_dialog_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get decks_view__show_edit_deck_dialog_cancel;
+
+  /// No description provided for @add_card_screen__new_card.
+  ///
+  /// In en, this message translates to:
+  /// **'New card'**
+  String get add_card_screen__new_card;
+
+  /// No description provided for @add_card_screen__word.
+  ///
+  /// In en, this message translates to:
+  /// **'Word'**
+  String get add_card_screen__word;
+
+  /// No description provided for @add_card_screen__translation.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get add_card_screen__translation;
+
+  /// No description provided for @add_card_screen__transcription.
+  ///
+  /// In en, this message translates to:
+  /// **'Transcription'**
+  String get add_card_screen__transcription;
+
+  /// No description provided for @add_card_screen__meaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Meaning/Hint'**
+  String get add_card_screen__meaning;
+
+  /// No description provided for @add_card_screen__examples.
+  ///
+  /// In en, this message translates to:
+  /// **'Examples of using'**
+  String get add_card_screen__examples;
+
+  /// No description provided for @add_card_screen__add_example.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add_card_screen__add_example;
+
+  /// No description provided for @add_card_screen__add_example_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example text'**
+  String get add_card_screen__add_example_hint;
+
+  /// No description provided for @add_card_screen__required_field.
+  ///
+  /// In en, this message translates to:
+  /// **'Required field'**
+  String get add_card_screen__required_field;
+
+  /// No description provided for @manage_deck_screen__cards_list_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cards list'**
+  String get manage_deck_screen__cards_list_title;
+
+  /// No description provided for @manage_deck_screen__no_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'No cards in deck'**
+  String get manage_deck_screen__no_cards;
+
+  /// No description provided for @trainig_screen__training.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get trainig_screen__training;
+
+  /// No description provided for @trainig_screen__training_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent! All words complete.'**
+  String get trainig_screen__training_done;
+
+  /// No description provided for @flash_card__tap_to_flip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to flip'**
+  String get flash_card__tap_to_flip;
 }
 
 class _AppLocalizationsDelegate

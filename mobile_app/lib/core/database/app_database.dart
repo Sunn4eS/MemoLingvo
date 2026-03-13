@@ -24,6 +24,13 @@ class StringListConverter extends TypeConverter<List<String>, String> {
   String toSql(List<String> value) => jsonEncode(value);
 }
 
+// DeckWithCount
+class DeckWithCount {
+  final Deck deck;
+  final int cardCount;
+  DeckWithCount(this.deck, this.cardCount);
+}
+
 class Decks extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text().withLength(min: 1, max: 50)();
@@ -62,10 +69,28 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration => MigrationStrategy(
     beforeOpen: (details) async {
-      // Это обязательно для работы OperationAction.cascade
       await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+
+  //DeckWithCount
+  Stream<List<DeckWithCount>> watchDecksWithCardCount() {
+    final countColumn = cards.id.count();
+    final query = select(
+      decks,
+    ).join([leftOuterJoin(cards, cards.deckId.equalsExp(decks.id))]);
+
+    query.groupBy([decks.id]);
+    query.addColumns([countColumn]);
+
+    return query.watch().map((rows) {
+      return rows.map((row) {
+        return DeckWithCount(
+          row.readTable(decks), 
+          row.read(countColumn) ?? 0);
+      }).toList();
+    });
+  }
 
   //Deck
   Stream<List<Deck>> watchAllDecks() => select(decks).watch();
@@ -73,9 +98,6 @@ class AppDatabase extends _$AppDatabase {
   Future updateDeck(Deck deck) => update(decks).replace(deck);
   Future deleteDeck(int id) =>
       (delete(decks)..where((t) => t.id.equals(id))).go();
-
-
-
 
   //Card
   Stream<List<Card>> watchCardsInDeck(int deckId) {
