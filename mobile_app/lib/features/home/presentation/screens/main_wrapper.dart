@@ -11,17 +11,17 @@ class _MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    Center(child: DecksView()), // ЛР №1: Страница 1
-    const Center(child: Text("Выбор игры")), // ЛР №1: Страница 2
+    Center(child: DecksView()), 
+    const Center(child: Text("Выбор игры")), 
     const Center(child: Text("Профиль")),
-    SettingsScreen(), // ЛР №1: Страница 3
+    SettingsScreen(), 
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
-      // Округлое меню внизу
+  
       bottomNavigationBar: SafeArea(
         child: Container(
           margin: const EdgeInsets.symmetric(

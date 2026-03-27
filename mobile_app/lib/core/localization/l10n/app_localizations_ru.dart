@@ -64,7 +64,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get decks_view__show_add_deck_dialog_create => 'Создать';
 
   @override
-  String get deck_card__show_action_menu_edit_title => 'Редактировать название';
+  String get deck_card__show_action_menu_edit_deck => 'Редактировать колоду';
 
   @override
   String get deck_card__show_action_menu_delete_deck => 'Удалить колоду';
@@ -104,7 +104,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get add_card_screen__translation => 'Перевод';
 
   @override
-  String get add_card_screen__transcription => 'Транскрибция';
+  String get add_card_screen__transcription => 'Транскрипция';
 
   @override
   String get add_card_screen__meaning => 'Значение/Подсказка';
@@ -135,4 +135,25 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get flash_card__tap_to_flip => 'Нажмите, чтобы перевернуть';
+
+  @override
+  String get edit_card_screen__edit => 'Редактировать';
+
+  @override
+  String get edit_card_screen__word => 'Слово';
+
+  @override
+  String get edit_card_screen__translation => 'Перевод';
+
+  @override
+  String get edit_card_screen__transcription => 'Транскрипция';
+
+  @override
+  String get edit_card_screen__meaning => 'Значение';
+
+  @override
+  String get edit_card_screen__examples => 'Примеры';
+
+  @override
+  String get edit_card_screen__add => 'Добавить';
 }

@@ -45,4 +45,8 @@ class CardRepository {
   Future deleteCard(int id) {
     return _db.deleteCard(id);
   }
+
+  Future<bool> updateCard(Card card) {
+    return _db.update(_db.cards).replace(card);
+  }
 }

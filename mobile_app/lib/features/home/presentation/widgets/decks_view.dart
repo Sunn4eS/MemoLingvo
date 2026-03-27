@@ -129,7 +129,7 @@ class _DeckCard extends StatelessWidget {
                     "Карточек: ${item.cardCount}",
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
-                  //TODO счетчик карты из бд
+                  //TODO прогресс бар
                 ],
               ),
             ),
@@ -162,7 +162,7 @@ class _DeckCard extends StatelessWidget {
           children: [
             ListTile(
               leading: const Icon(Icons.edit),
-              title: Text(l10n.deck_card__show_action_menu_edit_title),
+              title: Text(l10n.deck_card__show_action_menu_edit_deck),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
