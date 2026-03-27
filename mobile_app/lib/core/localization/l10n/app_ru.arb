@@ -17,7 +17,7 @@
   "decks_view__show_add_deck_dialog_hint_title" : "Название (например, Хобби)",
   "decks_view__show_add_deck_dialog_cancel" : "Отмена",
   "decks_view__show_add_deck_dialog_create" : "Создать",
-  "deck_card__show_action_menu_edit_title": "Редактировать название",
+  "deck_card__show_action_menu_edit_deck": "Редактировать колоду",
   "deck_card__show_action_menu_delete_deck": "Удалить колоду",
   "decks_view__show_edit_deck_dialog_edit_deck": "Редактировать колоду",
   "decks_view__show_edit_deck_dialog_title_label": "Название",
@@ -29,7 +29,7 @@
   "add_card_screen__new_card": "Добавить карточку",
   "add_card_screen__word": "Слово",
   "add_card_screen__translation": "Перевод",
-  "add_card_screen__transcription": "Транскрибция",
+  "add_card_screen__transcription": "Транскрипция",
   "add_card_screen__meaning": "Значение/Подсказка",
   "add_card_screen__examples": "Примеры использоавния",
   "add_card_screen__add_example": "Добавить",
@@ -39,6 +39,13 @@
   "manage_deck_screen__no_cards": "Нет карт в колоде",
   "trainig_screen__training": "Тренировка",
   "trainig_screen__training_done": "Отлично! Все слова пройдены.",
-  "flash_card__tap_to_flip": "Нажмите, чтобы перевернуть"
+  "flash_card__tap_to_flip": "Нажмите, чтобы перевернуть",
+  "edit_card_screen__edit": "Редактировать",
+  "edit_card_screen__word" : "Слово",
+  "edit_card_screen__translation": "Перевод",
+  "edit_card_screen__transcription" : "Транскрипция",
+  "edit_card_screen__meaning" : "Значение",
+  "edit_card_screen__examples": "Примеры",
+  "edit_card_screen__add" : "Добавить"
 
 }

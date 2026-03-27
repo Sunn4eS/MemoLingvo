@@ -67,6 +67,7 @@ class ManageDeckScreen extends StatelessWidget {
                           IconButton(
                             onPressed: () {
                               //TODO экран редактирования карточки
+                              
                             },
                             icon: Icon(Icons.edit, size: 20),
                           ),
