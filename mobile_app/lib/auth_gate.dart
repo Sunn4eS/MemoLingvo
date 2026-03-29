@@ -2,8 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
-import 'package:memo_lingvo/core/localization/l10n/app_localizations_en.dart';
-import 'package:memo_lingvo/core/localization/l10n/app_localizations_ru.dart';
+
 import 'package:memo_lingvo/core/localization/locale_cubit.dart';
 import 'package:memo_lingvo/core/theme/theme_cubit.dart';
 import 'package:memo_lingvo/features/auth/presentation/screens/login_sreen.dart';
