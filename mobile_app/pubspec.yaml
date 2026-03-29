@@ -40,16 +40,24 @@ dependencies:
   # Utils
   equatable: ^2.0.5             # Сравнение объектов (для State)
   flutter_native_splash: ^2.3.1 # Сплеш экран
-  firebase_core: ^3.15.2
-  firebase_auth: ^5.5.0  # или выше до 6.x
-  google_sign_in: ^6.2.1
+  
+  #firebase
+  firebase_core: ^4.6.0
+  firebase_auth: ^6.3.0
+  google_sign_in: ^7.2.0          # обновите до последней
+  
+  firebase_storage: ^13.2.0   # last version before breaking changes      # мажор 12 для совместимости с core ^3
+  cloud_firestore: ^6.2.0         # мажор 5 для core ^3
+
+  image_picker: ^1.0.7
+  
 
 
   #Swipe
   flutter_card_swiper: ^7.0.0
 
   
-  rxdart: ^0.27.7
+  rxdart: ^0.28.0
 
 
   
