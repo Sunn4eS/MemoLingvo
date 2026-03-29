@@ -5,7 +5,8 @@ import 'package:memo_lingvo/features/cards/data/repositories/card_repository.dar
 
 class AddCardScreen extends StatefulWidget {
   final int deckId;
-  const AddCardScreen({super.key, required this.deckId});
+  final String userId;
+  const AddCardScreen({super.key, required this.deckId, required this.userId});
 
   @override
   State<AddCardScreen> createState() => _AddCardScreenState();
@@ -55,6 +56,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
           .toList();
 
       await context.read<CardRepository>().addCard(
+        userId: widget.userId,
         deckId: widget.deckId,
         word: _wordController.text.trim(),
         translation: _translationController.text.trim(),
