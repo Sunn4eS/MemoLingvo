@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memo_lingvo/features/home/presentation/widgets/decks_view.dart';
+import 'package:memo_lingvo/features/profile/presentation/screens/profile_screen.dart';
 import 'package:memo_lingvo/features/settings/presentation/settings_screen.dart';
 
 class MainWrapper extends StatefulWidget {
@@ -13,7 +14,7 @@ class _MainWrapperState extends State<MainWrapper> {
   final List<Widget> _pages = [
     Center(child: DecksView()), 
     const Center(child: Text("Выбор игры")), 
-    const Center(child: Text("Профиль")),
+    ProfileScreen(),
     SettingsScreen(), 
   ];
 
