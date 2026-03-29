@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:memo_lingvo/app_providers.dart';
+import 'package:memo_lingvo/auth_gate.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/core/localization/locale_cubit.dart';
@@ -14,34 +15,6 @@ import 'package:memo_lingvo/firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final locale = context.watch<LocaleCubit>().state;
-    final themeMode = context.watch<ThemeCubit>().state;
-
-    return MaterialApp(
-      title: 'MemoLingvo',
-      locale: locale,
-      themeMode: themeMode,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: const [Locale('en'), Locale('ru')],
-
-      initialRoute: '/',
-      routes: {
-        '/': (context) => SplashScreen(),
-        '/login': (context) => LoginScreen(),
-        '/register': (context) => RegisterScreen(),
-        '/welcome': (context) => WelcomeScreen(),
-        '/home': (context) => MainWrapper(),
-      },
-      //home: SplashScreen(),
-    );
-  }
-}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
