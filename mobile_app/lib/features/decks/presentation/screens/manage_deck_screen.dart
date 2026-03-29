@@ -5,6 +5,7 @@ import 'package:memo_lingvo/core/database/app_database.dart' as app;
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/features/cards/data/repositories/card_repository.dart';
 import 'package:memo_lingvo/features/cards/presentation/screens/add_card_screen.dart';
+import 'package:memo_lingvo/features/cards/presentation/screens/edit_card_screen.dart';
 import 'package:memo_lingvo/features/decks/presentation/widgets/deck_info_section.dart';
 
 class ManageDeckScreen extends StatelessWidget {
@@ -23,7 +24,10 @@ class ManageDeckScreen extends StatelessWidget {
           IconButton(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => AddCardScreen(deckId: deck.id)),
+              MaterialPageRoute(
+                builder: (_) =>
+                    AddCardScreen(deckId: deck.id, userId: deck.userId),
+              ),
             ),
             icon: const Icon(Icons.add_circle_outline),
           ),
@@ -65,10 +69,13 @@ class ManageDeckScreen extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            onPressed: () {
-                              //TODO экран редактирования карточки
-                              
-                            },
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => EditCardScreen(card: card),
+                              ),
+                            ),
+
                             icon: Icon(Icons.edit, size: 20),
                           ),
                           IconButton(

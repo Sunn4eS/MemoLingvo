@@ -17,6 +17,7 @@ class CardRepository {
   Stream<List<Card>> watchCards(int deckId) => _db.watchCardsInDeck(deckId);
 
   Future<int> addCard({
+    required String userId,
     required int deckId,
     required String word,
     required String translation,
@@ -26,6 +27,7 @@ class CardRepository {
   }) {
     return _db.insertCard(
       CardsCompanion(
+        userId: Value(userId),
         deckId: Value(deckId),
         word: Value(word),
         translation: Value(translation),
