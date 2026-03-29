@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' as material;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
+import 'package:memo_lingvo/features/auth/data/repositories/auth_repository.dart';
 import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
 
 class DeckInfoSection extends StatelessWidget {
@@ -11,7 +12,6 @@ class DeckInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return material.Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -27,10 +27,9 @@ class DeckInfoSection extends StatelessWidget {
                     deck.title,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
-              
                 ),
                 IconButton(
-                  onPressed: () => _showEditDialog(context, deck), 
+                  onPressed: () => _showEditDialog(context, deck),
                   icon: const Icon(Icons.edit),
                 ),
               ],
@@ -94,6 +93,7 @@ class DeckInfoSection extends StatelessWidget {
                 return;
               }
               final updatedDeck = Deck(
+                userId: deck.userId,
                 id: deck.id,
                 title: titleController.text.trim(),
                 description: descriptionController.text.trim(),

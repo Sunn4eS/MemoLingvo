@@ -33,12 +33,15 @@ class DeckWithCount {
 
 class Decks extends Table {
   IntColumn get id => integer().autoIncrement()();
+  TextColumn get userId => text()();
+
   TextColumn get title => text().withLength(min: 1, max: 50)();
   TextColumn get description => text().nullable()();
 }
 
 class Cards extends Table {
   IntColumn get id => integer().autoIncrement()();
+  TextColumn get userId => text()();
 
   // Привязка к колоде
   IntColumn get deckId =>
@@ -74,20 +77,18 @@ class AppDatabase extends _$AppDatabase {
   );
 
   //DeckWithCount
-  Stream<List<DeckWithCount>> watchDecksWithCardCount() {
+  Stream<List<DeckWithCount>> watchDecksWithCardCount(String userId) {
     final countColumn = cards.id.count();
-    final query = select(
-      decks,
-    ).join([leftOuterJoin(cards, cards.deckId.equalsExp(decks.id))]);
+    final query = select(decks).join([
+      leftOuterJoin(cards, cards.deckId.equalsExp(decks.id)),
+    ])..where(decks.userId.equals(userId));
 
     query.groupBy([decks.id]);
     query.addColumns([countColumn]);
 
     return query.watch().map((rows) {
       return rows.map((row) {
-        return DeckWithCount(
-          row.readTable(decks), 
-          row.read(countColumn) ?? 0);
+        return DeckWithCount(row.readTable(decks), row.read(countColumn) ?? 0);
       }).toList();
     });
   }
