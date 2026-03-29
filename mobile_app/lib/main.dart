@@ -15,13 +15,15 @@ void main() async {
 
   final database = AppDatabase();
   final prefs = await SharedPreferences.getInstance();
+  
   //final authRepository = AuthRepository();
 
   runApp(
     AppProviders(
       child: MyApp(), 
       database: database, 
-      prefs: prefs
+      prefs: prefs,
+
     ),
   );
 }

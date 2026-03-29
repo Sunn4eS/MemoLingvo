@@ -15,11 +15,13 @@ class AppProviders extends StatelessWidget {
   final AppDatabase database;
   final SharedPreferences prefs;
 
+
   const AppProviders({
     super.key,
     required this.child,
     required this.database,
     required this.prefs,
+    
   });
 
   @override
@@ -28,7 +30,8 @@ class AppProviders extends StatelessWidget {
       providers: [
         RepositoryProvider.value(value: database),
         RepositoryProvider(create: (_) => AuthRepository()),
-        RepositoryProvider(create: (_) => DeckRepository(database)),
+        RepositoryProvider(
+          create: (context) => DeckRepository(database, context.read<AuthRepository>())),
         RepositoryProvider(create: (_) => CardRepository(database)),
       ],
       child: MultiBlocProvider(
@@ -36,7 +39,9 @@ class AppProviders extends StatelessWidget {
           BlocProvider(
             create: (context) => AuthCubit(context.read<AuthRepository>()),
           ),
-          BlocProvider(create: (context) => DeckCubit(context.read<DeckRepository>())),
+          BlocProvider(
+            create: (context) => DeckCubit(context.read<DeckRepository>()),
+          ),
           BlocProvider(create: (context) => ThemeCubit(prefs)),
           BlocProvider(create: (context) => LocaleCubit(prefs)),
         ],
