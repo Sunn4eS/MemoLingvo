@@ -8,6 +8,8 @@ import 'package:memo_lingvo/features/auth/logic/auth_cubit.dart';
 import 'package:memo_lingvo/features/cards/data/repositories/card_repository.dart';
 import 'package:memo_lingvo/features/decks/data/repositories/deck_repository.dart';
 import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
+import 'package:memo_lingvo/features/profile/data/repositories/profile_repository.dart';
+import 'package:memo_lingvo/features/profile/logic/profile_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppProviders extends StatelessWidget {
@@ -33,6 +35,7 @@ class AppProviders extends StatelessWidget {
         RepositoryProvider(
           create: (context) => DeckRepository(database, context.read<AuthRepository>())),
         RepositoryProvider(create: (_) => CardRepository(database)),
+        RepositoryProvider(create: (_) => ProfileRepository())
       ],
       child: MultiBlocProvider(
         providers: [
@@ -42,6 +45,7 @@ class AppProviders extends StatelessWidget {
           BlocProvider(
             create: (context) => DeckCubit(context.read<DeckRepository>()),
           ),
+          BlocProvider(create: (context) => ProfileCubit(context.read<ProfileRepository>(), context.read<AuthRepository>())),
           BlocProvider(create: (context) => ThemeCubit(prefs)),
           BlocProvider(create: (context) => LocaleCubit(prefs)),
         ],
