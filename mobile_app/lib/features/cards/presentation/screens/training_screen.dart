@@ -42,11 +42,16 @@ class _TrainingScreenContent extends StatelessWidget {
 
           return CardSwiper(
             numberOfCardsDisplayed: 1,
-            //TODO условие если меньше трёх карточек
-            threshold: 100,
-            cardBuilder: (context, index, _, __) {
+            threshold: 50,
+            cardBuilder: (context, index, horizontalThreshold, verticalThreshold) {
               final card = state.cards[index];
-              return FlashcardWidget(card: card);
+              return FlashcardWidget(
+                
+                card: card,
+                horizontalThreshold: horizontalThreshold
+
+              );
+
             },
             onSwipe: (previousIndex, currentIndex, direction) {
               context.read<TrainingCubit>().handleSwipe(
