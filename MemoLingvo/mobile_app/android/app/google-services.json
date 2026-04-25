@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "384795616017",
+    "project_id": "memolingvo-sdm",
+    "storage_bucket": "memolingvo-sdm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:384795616017:android:3e8cdebea63022477c22b0",
+        "android_client_info": {
+          "package_name": "by.bsuir.lingo_cards"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "384795616017-656i9s8ds1o8eh1ko3eok1r9tt7obk12.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjLTIP2rf4fQ_CVkEq8lGABKKKEX75ty4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "384795616017-656i9s8ds1o8eh1ko3eok1r9tt7obk12.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "384795616017-gjp8l95mf8h73919p342uls47hpv081j.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "by.bsuir.lingoCards"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
