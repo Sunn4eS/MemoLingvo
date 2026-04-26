@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
@@ -17,37 +18,36 @@ class AppProviders extends StatelessWidget {
   final AppDatabase database;
   final SharedPreferences prefs;
 
-
-  const AppProviders({
-    super.key,
-    required this.child,
-    required this.database,
-    required this.prefs,
-    
-  });
+  const AppProviders({super.key, required this.child, required this.database, required this.prefs});
 
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: database),
+        RepositoryProvider.value(value: prefs),
         RepositoryProvider(create: (_) => AuthRepository()),
-        RepositoryProvider(
-          create: (context) => DeckRepository(database, context.read<AuthRepository>())),
+        RepositoryProvider(create: (_) => DeckRepository(database)),
         RepositoryProvider(create: (_) => CardRepository(database)),
-        RepositoryProvider(create: (_) => ProfileRepository())
+        RepositoryProvider(
+          create: (context) => ProfileRepository(
+            context.read<AppDatabase>(),
+            context.read<SharedPreferences>(),
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(
-            create: (context) => AuthCubit(context.read<AuthRepository>()),
-          ),
-          BlocProvider(
-            create: (context) => DeckCubit(context.read<DeckRepository>()),
-          ),
-          BlocProvider(create: (context) => ProfileCubit(context.read<ProfileRepository>(), context.read<AuthRepository>())),
+          BlocProvider(create: (context) => AuthCubit(context.read<AuthRepository>(), database)),
+          BlocProvider(create: (context) => DeckCubit(context.read<DeckRepository>())),
           BlocProvider(create: (context) => ThemeCubit(prefs)),
           BlocProvider(create: (context) => LocaleCubit(prefs)),
+          BlocProvider(
+            create: (context) => ProfileCubit(
+              context.read<ProfileRepository>(),
+              FirebaseAuth.instance,
+            ),
+          ),
         ],
         child: child,
       ),
