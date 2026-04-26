@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
-//import 'package:memo_lingvo/features/decks/domain/entities/deck.dart';
 
 part 'app_database.g.dart';
 
@@ -14,55 +13,90 @@ enum LearningStatus {
   mastered, // 2
 }
 
+// Конвертер для массивов строк (Примеры)
 class StringListConverter extends TypeConverter<List<String>, String> {
   const StringListConverter();
   @override
-  List<String> fromSql(String fromDb) =>
-      (jsonDecode(fromDb) as List).cast<String>();
-
+  List<String> fromSql(String fromDb) => (jsonDecode(fromDb) as List).cast<String>();
   @override
   String toSql(List<String> value) => jsonEncode(value);
 }
 
-// DeckWithCount
+// 1. ТАБЛИЦА USERS
+class UsersTable extends Table {
+  TextColumn get id => text()(); // Это будет UID из Firebase
+  TextColumn get email => text()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// 2. ТАБЛИЦА DECKS
+class Decks extends Table {
+  TextColumn get id => text()(); 
+  TextColumn get userId => text().references(UsersTable, #id)(); 
+  TextColumn get title => text().withLength(min: 1, max: 100)();
+  TextColumn get description => text().nullable()();
+  
+  // Поля синхронизации
+  DateTimeColumn get updateAt => dateTime()();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  BoolColumn get isDirty => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// 3. ТАБЛИЦА CARDS
+class Cards extends Table {
+  TextColumn get id => text()();
+  TextColumn get deckId => text().references(Decks, #id, onDelete: KeyAction.cascade)();
+  
+  TextColumn get word => text()();
+  TextColumn get translation => text()();
+  TextColumn get transcription => text().nullable()();
+  TextColumn get meaning => text()();
+  TextColumn get examples => text().map(const StringListConverter()).nullable()();
+
+  // Поля синхронизации
+  DateTimeColumn get updateAt => dateTime()();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  BoolColumn get isDirty => boolean().withDefault(const Constant(false))();
+
+  //Поле статуса
+  IntColumn get status => intEnum<LearningStatus>().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+// 4. ТАБЛИЦА PROGRESS (SM-2)
+class CardProgress extends Table {
+  TextColumn get cardId => text().references(Cards, #id, onDelete: KeyAction.cascade)();
+  TextColumn get userId => text().references(UsersTable, #id)();
+  
+  DateTimeColumn get nextReview => dateTime()();
+  RealColumn get easinessFactor => real().withDefault(const Constant(2.5))();
+  IntColumn get repetitions => integer().withDefault(const Constant(0))();
+  IntColumn get interval => integer().withDefault(const Constant(0))();
+  
+  // Поля синхронизации
+  DateTimeColumn get updateAt => dateTime()();
+  BoolColumn get isDirty => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {cardId, userId}; // Составной ключ
+}
+
+// Класс для UI
 class DeckWithCount {
   final Deck deck;
   final int cardCount;
   DeckWithCount(this.deck, this.cardCount);
 }
 
-class Decks extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get userId => text()();
-
-  TextColumn get title => text().withLength(min: 1, max: 50)();
-  TextColumn get description => text().nullable()();
-}
-
-class Cards extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get userId => text()();
-
-  // Привязка к колоде
-  IntColumn get deckId =>
-      integer().references(Decks, #id, onDelete: KeyAction.cascade)();
-  TextColumn get word => text()();
-  TextColumn get translation => text()();
-  TextColumn get transcription => text().nullable()();
-  TextColumn get meaning => text().nullable()();
-
-  TextColumn get examples =>
-      text().map(const StringListConverter()).nullable()();
-
-  IntColumn get status => intEnum<LearningStatus>().withDefault(
-    Constant(LearningStatus.newCard.index),
-  )();
-
-  IntColumn get repetitions => integer().withDefault(const Constant(0))();
-  DateTimeColumn get lastSeen => dateTime().nullable()();
-}
-
-@DriftDatabase(tables: [Decks, Cards])
+@DriftDatabase(tables: [UsersTable, Decks, Cards, CardProgress])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -76,49 +110,34 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
-  //DeckWithCount
-  Stream<List<DeckWithCount>> watchDecksWithCardCount(String userId) {
+  // В файле: lib/core/database/app_database.dart (внутри класса AppDatabase)
+
+  // ДОБАВИТЬ МЕТОД: Получение серверного ID по email
+  Future<String?> getServerUserId(String email) async {
+    final user = await (select(usersTable)..where((t) => t.email.equals(email))).getSingleOrNull();
+    return user?.id;
+  }
+
+ // Получить колоды только текущего пользователя!
+  Stream<List<DeckWithCount>> watchDecksWithCardCount(String currentUserId) {
     final countColumn = cards.id.count();
-    final query = select(decks).join([
-      leftOuterJoin(cards, cards.deckId.equalsExp(decks.id)),
-    ])..where(decks.userId.equals(userId));
+    
+    // ДОБАВИЛИ ФИЛЬТР ПО userId
+    final query = select(decks)..where((t) => t.isDeleted.equals(false) & t.userId.equals(currentUserId));
 
-    query.groupBy([decks.id]);
-    query.addColumns([countColumn]);
+    final joinedQuery = query.join([
+      leftOuterJoin(cards, cards.deckId.equalsExp(decks.id) & cards.isDeleted.equals(false))
+    ]);
 
-    return query.watch().map((rows) {
+    joinedQuery.groupBy([decks.id]);
+    joinedQuery.addColumns([countColumn]);
+
+    return joinedQuery.watch().map((rows) {
       return rows.map((row) {
         return DeckWithCount(row.readTable(decks), row.read(countColumn) ?? 0);
       }).toList();
     });
   }
-
-  //Deck
-  Stream<List<Deck>> watchAllDecks() => select(decks).watch();
-  Future<int> insertDeck(DecksCompanion deck) => into(decks).insert(deck);
-  Future updateDeck(Deck deck) => update(decks).replace(deck);
-  Future deleteDeck(int id) =>
-      (delete(decks)..where((t) => t.id.equals(id))).go();
-
-  //Card
-  Stream<List<Card>> watchCardsInDeck(int deckId) {
-    return (select(cards)..where((t) => t.deckId.equals(deckId))).watch();
-  }
-
-  Future updateCardStatus(int cardId, LearningStatus newStatus) {
-    return (update(cards)..where((t) => t.id.equals(cardId))).write(
-      CardsCompanion(
-        status: Value(newStatus),
-        lastSeen: Value(DateTime.now()),
-        repetitions: Value(1),
-      ),
-    );
-  }
-
-  Future<int> insertCard(CardsCompanion card) => into(cards).insert(card);
-  Future updateCard(Card card) => update(cards).replace(card);
-  Future deleteCard(int id) =>
-      (delete(cards)..where((t) => t.id.equals(id))).go();
 }
 
 LazyDatabase _openConnection() {

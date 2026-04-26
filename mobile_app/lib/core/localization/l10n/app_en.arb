@@ -17,7 +17,7 @@
   "decks_view__show_add_deck_dialog_hint_title" : "Title (example, Hobbies)",
   "decks_view__show_add_deck_dialog_cancel" : "Cancel",
   "decks_view__show_add_deck_dialog_create" : "Create",
-  "deck_card__show_action_menu_edit_deck": "Edit deck",
+  "deck_card__show_action_menu_edit_title": "Edit title",
   "deck_card__show_action_menu_delete_deck": "Delete deck",
   "decks_view__show_edit_deck_dialog_edit_deck": "Edit deck",
   "decks_view__show_edit_deck_dialog_title_label": "Title",
@@ -39,12 +39,6 @@
   "manage_deck_screen__no_cards": "No cards in deck",
   "trainig_screen__training": "Training",
   "trainig_screen__training_done": "Excellent! All words complete.",
-  "flash_card__tap_to_flip": "Tap to flip",
-  "edit_card_screen__edit": "Edit",
-  "edit_card_screen__word" : "Word",
-  "edit_card_screen__translation": "Translation",
-  "edit_card_screen__transcription" : "Transcription",
-  "edit_card_screen__meaning" : "Meaning",
-  "edit_card_screen__examples": "Examples",
-  "edit_card_screen__add" : "Add"
+  "flash_card__tap_to_flip": "Tap to flip"
+
 }

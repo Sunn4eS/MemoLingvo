@@ -206,11 +206,11 @@ abstract class AppLocalizations {
   /// **'Create'**
   String get decks_view__show_add_deck_dialog_create;
 
-  /// No description provided for @deck_card__show_action_menu_edit_deck.
+  /// No description provided for @deck_card__show_action_menu_edit_title.
   ///
   /// In en, this message translates to:
-  /// **'Edit deck'**
-  String get deck_card__show_action_menu_edit_deck;
+  /// **'Edit title'**
+  String get deck_card__show_action_menu_edit_title;
 
   /// No description provided for @deck_card__show_action_menu_delete_deck.
   ///
@@ -343,48 +343,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap to flip'**
   String get flash_card__tap_to_flip;
-
-  /// No description provided for @edit_card_screen__edit.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit'**
-  String get edit_card_screen__edit;
-
-  /// No description provided for @edit_card_screen__word.
-  ///
-  /// In en, this message translates to:
-  /// **'Word'**
-  String get edit_card_screen__word;
-
-  /// No description provided for @edit_card_screen__translation.
-  ///
-  /// In en, this message translates to:
-  /// **'Translation'**
-  String get edit_card_screen__translation;
-
-  /// No description provided for @edit_card_screen__transcription.
-  ///
-  /// In en, this message translates to:
-  /// **'Transcription'**
-  String get edit_card_screen__transcription;
-
-  /// No description provided for @edit_card_screen__meaning.
-  ///
-  /// In en, this message translates to:
-  /// **'Meaning'**
-  String get edit_card_screen__meaning;
-
-  /// No description provided for @edit_card_screen__examples.
-  ///
-  /// In en, this message translates to:
-  /// **'Examples'**
-  String get edit_card_screen__examples;
-
-  /// No description provided for @edit_card_screen__add.
-  ///
-  /// In en, this message translates to:
-  /// **'Add'**
-  String get edit_card_screen__add;
 }
 
 class _AppLocalizationsDelegate
