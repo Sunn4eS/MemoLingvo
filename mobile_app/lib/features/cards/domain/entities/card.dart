@@ -12,8 +12,8 @@ enum LearningStatus {
 @freezed
 sealed class Card with _$Card {
   const factory Card({
-    required int id,
-    required int deckId,
+    required String id,
+    required String deckId,
 
     //Front
     required String word,

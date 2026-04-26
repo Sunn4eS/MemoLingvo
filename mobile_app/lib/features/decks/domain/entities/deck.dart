@@ -6,7 +6,7 @@ part 'deck.g.dart';
 @freezed
 sealed class Deck with _$Deck {
   const factory Deck({
-    required int id,
+    required String id,
     required String title,
     String? description,
     @Default(0) int cardsCount,       // Сколько всего карт
