@@ -1,59 +1,48 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
-import 'package:memo_lingvo/features/auth/data/repositories/auth_repository.dart';
 import 'package:memo_lingvo/features/profile/data/repositories/profile_repository.dart';
 import 'package:memo_lingvo/features/profile/logic/profile_state.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io';
 
 class ProfileCubit extends Cubit<ProfileState> {
-  final ProfileRepository _profileRepository;
-  final AuthRepository _authRepository;
+  final ProfileRepository _repository;
+  final FirebaseAuth _auth;
 
-  ProfileCubit(this._profileRepository, this._authRepository)
-    : super(ProfileInitial()) {
-    loadProfile;
+  ProfileCubit(this._repository, this._auth) : super(ProfileInitial()) {
+    loadProfile();
   }
 
-  void loadProfile() {
-    final userId = _authRepository.currentUserId;
-    if (userId == null) {
-      emit(ProfileError("Пользователь не авторизован"));
-      return;
+  Future<void> loadProfile() async {
+    emit(ProfileLoading());
+    try {
+      final user = _auth.currentUser;
+      if (user == null || user.email == null) {
+        emit(ProfileError('Пользователь не авторизован'));
+        return;
+      }
+      final profile = await _repository.getLocalProfile(user.email!);
+      if (profile == null) {
+        emit(ProfileError('Профиль не найден'));
+        return;
+      }
+      final stats = await _repository.getLearningStats(profile.id);
+      final avatarPath = _repository.getAvatarPath();
+      emit(ProfileLoaded(profile, stats, avatarPath));
+    } catch (e) {
+      emit(ProfileError(e.toString()));
     }
-
-    _profileRepository
-        .watchUserProfile(userId)
-        .listen(
-          (data) {
-            print("🎯 Данные из Firestore пришли: $data"); // ДЛЯ ТЕСТА
-
-            final xp = data['xp'] as int? ?? 0;
-
-            emit(
-              ProfileLoaded(
-                nickname: data['nickname'] as String? ?? 'Изучающий Lingo',
-                avatarUrl: data['avatarUrl'] as String?,
-                xp: xp,
-                rank: _calculateRank(xp),
-              ),
-            );
-          },
-          onError: (error) {
-            // 🚨 ЕСЛИ ЕСТЬ ОШИБКА, ОНА ВЫВЕДЕТСЯ СЮДА:
-            print("💥 ОШИБКА FIRESTORE В CUBIT: $error");
-            emit(ProfileError("Ошибка загрузки профиля: $error"));
-          },
-        );
   }
 
-  Future<void> updateAvatar() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  }
+  Future<void> updateAvatar(File imageFile) async {
+    final state = this.state;
+    if (state is! ProfileLoaded) return;
 
-  String _calculateRank(int xp) {
-    if (xp < 100) return "Новичок 🎓";
-    if (xp < 500) return "Продвинутый 📚";
-    return "Магистр Слов 🧙‍♂️";
+    final success = await _repository.updateAvatarFromFile(imageFile);
+    if (success) {
+      // Перезагружаем профиль, чтобы обновить avatarPath в состоянии
+      await loadProfile();
+    } else {
+      emit(ProfileError('Не удалось сохранить аватар'));
+    }
   }
 }
