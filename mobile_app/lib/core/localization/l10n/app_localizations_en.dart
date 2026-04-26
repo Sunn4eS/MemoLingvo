@@ -65,7 +65,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get decks_view__show_add_deck_dialog_create => 'Create';
 
   @override
-  String get deck_card__show_action_menu_edit_deck => 'Edit deck';
+  String get deck_card__show_action_menu_edit_title => 'Edit title';
 
   @override
   String get deck_card__show_action_menu_delete_deck => 'Delete deck';
@@ -134,25 +134,4 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get flash_card__tap_to_flip => 'Tap to flip';
-
-  @override
-  String get edit_card_screen__edit => 'Edit';
-
-  @override
-  String get edit_card_screen__word => 'Word';
-
-  @override
-  String get edit_card_screen__translation => 'Translation';
-
-  @override
-  String get edit_card_screen__transcription => 'Transcription';
-
-  @override
-  String get edit_card_screen__meaning => 'Meaning';
-
-  @override
-  String get edit_card_screen__examples => 'Examples';
-
-  @override
-  String get edit_card_screen__add => 'Add';
 }
