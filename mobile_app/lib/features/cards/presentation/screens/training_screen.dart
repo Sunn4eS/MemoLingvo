@@ -7,7 +7,7 @@ import 'package:memo_lingvo/features/cards/presentation/widgets/flashcard.dart';
 import 'package:memo_lingvo/features/cards/data/repositories/card_repository.dart';
 
 class TrainingScreen extends StatelessWidget {
-  final int deckId;
+  final String deckId;
   const TrainingScreen({super.key, required this.deckId});
 
   @override
@@ -42,16 +42,11 @@ class _TrainingScreenContent extends StatelessWidget {
 
           return CardSwiper(
             numberOfCardsDisplayed: 1,
-            threshold: 50,
-            cardBuilder: (context, index, horizontalThreshold, verticalThreshold) {
+            //TODO условие если меньше трёх карточек
+            threshold: 100,
+            cardBuilder: (context, index, _, __) {
               final card = state.cards[index];
-              return FlashcardWidget(
-                
-                card: card,
-                horizontalThreshold: horizontalThreshold
-
-              );
-
+              return FlashcardWidget(card: card);
             },
             onSwipe: (previousIndex, currentIndex, direction) {
               context.read<TrainingCubit>().handleSwipe(

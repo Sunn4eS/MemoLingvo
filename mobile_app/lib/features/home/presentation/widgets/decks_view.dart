@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:memo_lingvo/core/database/app_database.dart';
-import 'package:flutter/material.dart' as material;
+import 'package:memo_lingvo/core/database/app_database.dart' hide Card;
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/features/cards/presentation/screens/training_screen.dart';
 import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
 import 'package:memo_lingvo/features/decks/presentation/screens/manage_deck_screen.dart';
 
 class DecksView extends StatelessWidget {
-  DecksView({super.key});
+  const DecksView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +54,7 @@ class DecksView extends StatelessWidget {
           decoration: InputDecoration(
             hintText: l10n.decks_view__show_add_deck_dialog_hint_title,
           ),
+          autofocus: true,
         ),
         actions: [
           TextButton(
@@ -65,8 +65,8 @@ class DecksView extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              if (controller.text.isNotEmpty) {
-                context.read<DeckCubit>().addDeck(controller.text, null);
+              if (controller.text.trim().isNotEmpty) {
+                context.read<DeckCubit>().addDeck(controller.text.trim(), null);
                 Navigator.pop(context);
               }
             },
@@ -84,37 +84,36 @@ class _DeckCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return material.Card(
+    return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Stack(
         children: [
           InkWell(
             onTap: () {
-              Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => TrainingScreen(deckId: item.deck.id),
-    ),
-  );
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => TrainigScreen()),
-              // );
-              // //TODO train screen
-
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => AddCardScreen(deckId: item.deck.id),
-              //   ),
-              // );
+              // НОВАЯ ЛОГИКА ПЕРЕХОДОВ
+              if (item.cardCount > 0) {
+                // Если карточки есть -> идем тренироваться
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TrainingScreen(deckId: item.deck.id),
+                  ),
+                );
+              } else {
+                // Если колода пустая -> открываем управление колодой (чтобы добавить карточки)
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ManageDeckScreen(deck: item.deck),
+                  ),
+                );
+              }
             },
-
-            //onLongPress: () => _showActionMenu(context, item.deck),
+            onLongPress: () => _showActionMenu(context, item.deck),
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: material.Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.folder_open, size: 40, color: Colors.blue),
@@ -122,12 +121,14 @@ class _DeckCard extends StatelessWidget {
                   Text(
                     item.deck.title,
                     style: const TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     "Карточек: ${item.cardCount}",
                     style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
-                  //TODO прогресс бар
                 ],
               ),
             ),
@@ -155,12 +156,12 @@ class _DeckCard extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => SafeArea(
-        child: material.Column(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
               leading: const Icon(Icons.edit),
-              title: Text(l10n.deck_card__show_action_menu_edit_deck),
+              title: Text(l10n.deck_card__show_action_menu_edit_title),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -175,7 +176,7 @@ class _DeckCard extends StatelessWidget {
               leading: const Icon(Icons.delete, color: Colors.red),
               title: Text(
                 l10n.deck_card__show_action_menu_delete_deck,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
               ),
               onTap: () {
                 context.read<DeckCubit>().deleteDeck(deck.id);
