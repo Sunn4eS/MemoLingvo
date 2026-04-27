@@ -13,25 +13,86 @@ class AvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => _pickAndUpdateAvatar(context),
+      onTap: () => _showPickerOptions(context),
       child: CircleAvatar(
         radius: size / 2,
+        backgroundColor: Colors.grey.shade200,
         backgroundImage: avatarPath != null && File(avatarPath!).existsSync()
             ? FileImage(File(avatarPath!))
             : null,
         child: avatarPath == null
-            ? Icon(Icons.camera_alt, size: size * 0.4)
+            ? Icon(Icons.person, size: size * 0.5, color: Colors.grey.shade400)
             : null,
       ),
     );
   }
 
-  Future<void> _pickAndUpdateAvatar(BuildContext context) async {
+  void _showPickerOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (bottomSheetContext) => SafeArea(
+        child: Wrap(
+          children:[
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'Фото профиля',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: Colors.blue),
+              title: const Text('Сделать фото'),
+              onTap: () {
+                Navigator.of(bottomSheetContext).pop();
+                _pickAndUpdateAvatar(context, ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library, color: Colors.blue),
+              title: const Text('Выбрать из галереи'),
+              onTap: () {
+                Navigator.of(bottomSheetContext).pop();
+                _pickAndUpdateAvatar(context, ImageSource.gallery);
+              },
+            ),
+            if (avatarPath != null)
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Удалить фото', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.of(bottomSheetContext).pop();
+                  context.read<ProfileCubit>().removeAvatar();
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickAndUpdateAvatar(BuildContext context, ImageSource source) async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      final file = File(pickedFile.path);
-      await context.read<ProfileCubit>().updateAvatar(file);
+    try {
+      final pickedFile = await picker.pickImage(
+        source: source,
+        imageQuality: 70, // Сжимаем фото, чтобы не забивать память
+        maxWidth: 800,
+      );
+      
+      if (pickedFile != null && context.mounted) {
+        final file = File(pickedFile.path);
+        await context.read<ProfileCubit>().updateAvatar(file);
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка при выборе фото: $e')),
+        );
+      }
     }
   }
 }

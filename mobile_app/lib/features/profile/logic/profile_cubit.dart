@@ -20,13 +20,16 @@ class ProfileCubit extends Cubit<ProfileState> {
         emit(ProfileError('Пользователь не авторизован'));
         return;
       }
+
       final profile = await _repository.getLocalProfile(user.email!);
       if (profile == null) {
         emit(ProfileError('Профиль не найден'));
         return;
       }
+
       final stats = await _repository.getLearningStats(profile.id);
       final avatarPath = _repository.getAvatarPath();
+
       emit(ProfileLoaded(profile, stats, avatarPath));
     } catch (e) {
       emit(ProfileError(e.toString()));
@@ -39,10 +42,18 @@ class ProfileCubit extends Cubit<ProfileState> {
 
     final success = await _repository.updateAvatarFromFile(imageFile);
     if (success) {
-      // Перезагружаем профиль, чтобы обновить avatarPath в состоянии
       await loadProfile();
     } else {
       emit(ProfileError('Не удалось сохранить аватар'));
     }
+  }
+
+  // НОВЫЙ МЕТОД: Удаление аватарки
+  Future<void> removeAvatar() async {
+    final state = this.state;
+    if (state is! ProfileLoaded) return;
+
+    await _repository.saveAvatarPath(null); // Затираем путь в SharedPreferences
+    await loadProfile(); // Перезагружаем интерфейс
   }
 }
