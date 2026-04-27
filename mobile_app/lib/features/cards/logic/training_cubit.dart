@@ -2,8 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/features/cards/data/repositories/card_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Обязательно импортируем Firebase
-//import 'package:memo_lingvo/core/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class TrainingState {
   final List<Card> cards;
@@ -19,19 +18,18 @@ class TrainingState {
 
 class TrainingCubit extends Cubit<TrainingState> {
   final CardRepository _repository;
-  final String deckId; // ID теперь String (UUID)
+  final String deckId;
 
   TrainingCubit(this._repository, this.deckId)
-    : super(TrainingState(cards: [])) {
+    : super(TrainingState(cards:[])) {
     _loadCards();
   }
 
   void _loadCards() async {
+    // Берем карточки из базы
     final cards = await _repository.watchCards(deckId).first;
     emit(TrainingState(cards: cards));
   }
-
-  // В файле: lib/features/cards/logic/training_cubit.dart
 
   void handleSwipe(int index, CardSwiperDirection direction) async {
     if (state.cards.isEmpty) return;
@@ -44,17 +42,32 @@ class TrainingCubit extends Cubit<TrainingState> {
       return;
     }
 
+    // Качество изучения: 5 для свайпа вправо (хорошо), 1 для влево (плохо)
     int quality = (direction == CardSwiperDirection.right) ? 5 : 1;
-
     final serverId = await _repository.getServerUserId(firebaseUser.email!);
+    
     if (serverId != null) {
+      // Сохраняем прогресс в БД
       _repository.updateCardProgress(card.id, serverId, quality);
     }
 
-    if (index == state.cards.length - 1) {
-      emit(TrainingState(cards: state.cards, isFinished: true));
+    // Создаем изменяемую копию списка
+    List<Card> updatedCards = List.from(state.cards);
+
+    // Если карточка изучена плохо (свайп влево) - добавляем ее в конец списка
+    if (direction == CardSwiperDirection.left) {
+      updatedCards.add(card);
+    }
+
+    // Проверяем, не закончились ли карточки с учетом возможного пополнения
+    if (index >= updatedCards.length - 1) {
+      emit(TrainingState(cards: updatedCards, isFinished: true));
     } else {
-      emit(TrainingState(cards: state.cards, currentIndex: index + 1, isFinished: false));
+      emit(TrainingState(
+        cards: updatedCards, 
+        currentIndex: index + 1, 
+        isFinished: false
+      ));
     }
   }
 }
