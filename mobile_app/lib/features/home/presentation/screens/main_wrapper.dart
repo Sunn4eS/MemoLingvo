@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:memo_lingvo/features/home/presentation/widgets/decks_view.dart';
 import 'package:memo_lingvo/features/profile/presentation/screens/profile_screen.dart';
 import 'package:memo_lingvo/features/settings/presentation/settings_screen.dart';
-
-// --- НОВЫЕ ИМПОРТЫ ДЛЯ СИНХРОНИЗАЦИИ ---
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/core/network/api_client.dart';
 import 'package:memo_lingvo/features/sync/sync_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-//import 'package:memo_lingvo/core/utils.dart';
+import 'package:memo_lingvo/features/profile/logic/profile_cubit.dart'; 
+import 'package:memo_lingvo/core/network/network_cubit.dart';
+import 'package:memo_lingvo/core/notifications/notification_service.dart';
 
 class MainWrapper extends StatefulWidget {
   @override
@@ -18,60 +18,97 @@ class MainWrapper extends StatefulWidget {
 
 class _MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
-
-  final List<Widget> _pages = [
-    Center(child: DecksView()), // ЛР №1: Страница 1
-    const Center(child: Text("Выбор игры")), // ЛР №1: Страница 2
+  
+  final List<Widget> _pages =[
+    Center(child: DecksView()),
+    const Center(child: Text("Выбор игры")),
     const Center(child: ProfileScreen()),
-    SettingsScreen(), // ЛР №1: Страница 3
+    SettingsScreen(),
   ];
-
-  // Динамические заголовки для верхней панели (AppBar)
-  final List<String> _titles = [
+  
+  final List<String> _titles =[
     "Мои колоды",
     "Игры",
     "Профиль",
     "Настройки",
   ];
 
+   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final db = context.read<AppDatabase>();
+      NotificationService().scheduleWordOfTheDay(db);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // --- ДОБАВЛЯЕМ ВЕРХНЮЮ ПАНЕЛЬ (AppBar) С КНОПКОЙ ---
+    return BlocListener<NetworkCubit, NetworkState>(
+      listener: (context, state) {
+        if (state == NetworkState.offline) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children:[
+                  Icon(Icons.wifi_off, color: Colors.white),
+                  SizedBox(width: 10),
+                  Text('Нет подключения к интернету'),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              duration: Duration(days: 1), // Висит пока не появится сеть
+            ),
+          );
+        } else if (state == NetworkState.online) {
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children:[
+                  Icon(Icons.wifi, color: Colors.white),
+                  SizedBox(width: 10),
+                  Text('Подключение восстановлено'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_currentIndex]), // Название меняется при переключении
+        title: Text(_titles[_currentIndex]),
         centerTitle: true,
-        actions: [
-          // Кнопка синхронизации
+        actions:[
           IconButton(
             icon: const Icon(Icons.sync),
             tooltip: 'Синхронизировать данные',
             onPressed: () async {
-              print("🔘 Нажата кнопка синхронизации!"); // Проверка клика
-              
+              print("🔘 Нажата кнопка синхронизации!");
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('🔄 Синхронизация с сервером...')),
               );
-
               try {
                 final db = context.read<AppDatabase>();
                 final apiClient = ApiClient();
                 final syncService = SyncService(db, apiClient);
-                
                 final firebaseUser = FirebaseAuth.instance.currentUser;
+                
                 if (firebaseUser != null && firebaseUser.email != null) {
-                  
                   final serverId = await db.getServerUserId(firebaseUser.email!);
-                  print("🔍 ID для синхронизации: $serverId"); // Логируем ID
+                  print("🔍 ID для синхронизации: $serverId");
                   
                   if (serverId != null) {
                     await syncService.pushDirtyData();
                     await syncService.pullServerData(serverId);
-                    
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('✅ Синхронизация завершена!')),
                       );
+                      // Обновляем статистику профиля после синхронизации
+                      context.read<ProfileCubit>().loadProfile();
                     }
                   } else {
                     if (context.mounted) {
@@ -84,10 +121,7 @@ class _MainWrapperState extends State<MainWrapper> {
               } catch (e) {
                 print("❌ Ошибка при синхронизации: $e");
                 if (context.mounted) {
-                  // Прячем предыдущий Снекбар "Синхронизация..."
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                  
-                  // Показываем человечную ошибку
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('❌ Нет связи с сервером. Проверьте интернет.'),
@@ -100,10 +134,7 @@ class _MainWrapperState extends State<MainWrapper> {
           ),
         ],
       ),
-      
       body: _pages[_currentIndex],
-      
-      // Округлое меню внизу
       bottomNavigationBar: SafeArea(
         child: Container(
           margin: const EdgeInsets.symmetric(
@@ -120,11 +151,17 @@ class _MainWrapperState extends State<MainWrapper> {
             borderRadius: BorderRadius.circular(30),
             child: BottomNavigationBar(
               currentIndex: _currentIndex,
-              onTap: (index) => setState(() => _currentIndex = index),
+              onTap: (index) {
+                // ИЗМЕНЕНИЕ: Обновляем профиль при переходе на вкладку Профиля (индекс 2)
+                if (index == 2) {
+                  context.read<ProfileCubit>().loadProfile();
+                }
+                setState(() => _currentIndex = index);
+              },
               type: BottomNavigationBarType.fixed,
               showSelectedLabels: false,
               showUnselectedLabels: false,
-              items: const [
+              items: const[
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home_rounded),
                   label: "",
@@ -145,6 +182,7 @@ class _MainWrapperState extends State<MainWrapper> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
