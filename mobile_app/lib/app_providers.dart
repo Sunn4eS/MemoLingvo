@@ -12,6 +12,7 @@ import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
 import 'package:memo_lingvo/features/profile/data/repositories/profile_repository.dart';
 import 'package:memo_lingvo/features/profile/logic/profile_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:memo_lingvo/core/network/network_cubit.dart';
 
 class AppProviders extends StatelessWidget {
   final Widget child;
@@ -40,6 +41,7 @@ class AppProviders extends StatelessWidget {
         providers: [
           BlocProvider(create: (context) => AuthCubit(context.read<AuthRepository>(), database)),
           BlocProvider(create: (context) => DeckCubit(context.read<DeckRepository>())),
+           BlocProvider(create: (context) => NetworkCubit()),
           BlocProvider(create: (context) => ThemeCubit(prefs)),
           BlocProvider(create: (context) => LocaleCubit(prefs)),
           BlocProvider(
