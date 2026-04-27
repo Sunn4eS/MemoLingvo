@@ -33,6 +33,16 @@ class DeckCubit extends Cubit<List<DeckWithCount>> {
     });
   }
 
+  Future<void> importDeckByCode(String code) async {
+    final email = FirebaseAuth.instance.currentUser?.email;
+    if (email != null) {
+      final serverId = await _repository.getServerUserId(email);
+      if (serverId != null) {
+        await _repository.importDeck(code, serverId);
+      }
+    }
+  }
+  
   void _listenToDecks(String userId) {
     _dbSubscription?.cancel();
     // Слушаем базу данных с правильным ID пользователя (C# GUID)
