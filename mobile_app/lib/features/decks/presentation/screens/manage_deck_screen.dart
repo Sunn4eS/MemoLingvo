@@ -66,7 +66,15 @@ class ManageDeckScreen extends StatelessWidget {
                         children: [
                           IconButton(
                             onPressed: () {
-                              //TODO экран редактирования карточки
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AddCardScreen(
+                                    deckId: deck.id,
+                                    cardToEdit: card, // <-- Передаем карточку!
+                                  ),
+                                ),
+                              );
                             },
                             icon: Icon(Icons.edit, size: 20),
                           ),
