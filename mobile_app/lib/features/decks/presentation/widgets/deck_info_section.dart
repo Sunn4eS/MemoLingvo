@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:drift/drift.dart' as drift; // ДОБАВИЛИ ИМПОРТ DRIFT
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
@@ -11,7 +12,6 @@ class DeckInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return material.Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -27,7 +27,6 @@ class DeckInfoSection extends StatelessWidget {
                     deck.title,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
-              
                 ),
                 IconButton(
                   onPressed: () => _showEditDialog(context, deck), 
@@ -74,10 +73,8 @@ class DeckInfoSection extends StatelessWidget {
             TextField(
               controller: descriptionController,
               decoration: InputDecoration(
-                hintText:
-                    l10n.decks_view__show_edit_deck_dialog_hint_description,
-                labelText:
-                    l10n.decks_view__show_edit_deck_dialog_description_label,
+                hintText: l10n.decks_view__show_edit_deck_dialog_hint_description,
+                labelText: l10n.decks_view__show_edit_deck_dialog_description_label,
               ),
               maxLines: 3,
             ),
@@ -93,15 +90,22 @@ class DeckInfoSection extends StatelessWidget {
               if (titleController.text.trim().isEmpty) {
                 return;
               }
-              final updatedDeck = Deck(
-                id: deck.id,
+              
+              // ИСПРАВЛЕНИЕ: Берем ТЕКУЩУЮ колоду и обновляем в ней поля
+              final updatedDeck = deck.copyWith(
                 title: titleController.text.trim(),
-                description: descriptionController.text.trim(),
+                description: drift.Value(
+                  descriptionController.text.trim().isEmpty 
+                      ? null 
+                      : descriptionController.text.trim()
+                ),
+                isDirty: true,
+                updateAt: DateTime.now().toUtc(),
               );
+
               context.read<DeckCubit>().updateDeck(updatedDeck);
               Navigator.pop(context);
             },
-
             child: Text(l10n.decks_view__show_edit_deck_dialog_save),
           ),
         ],

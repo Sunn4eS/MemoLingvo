@@ -36,9 +36,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           state.whenOrNull(
-            error: (msg) => ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(msg))),
+            // ДОБАВЛЯЕМ ПЕРЕХОД ПРИ УСПЕШНОЙ РЕГИСТРАЦИИ
+            authenticated: (user) {
+              Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+            },
+            error: (msg) => ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(msg)),
+            ),
           );
         },
         builder: (context, state) {
@@ -104,76 +108,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ],
               ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class RegisterScreen2 extends StatelessWidget {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.register_screen_register),
-      ),
-      body: BlocConsumer<AuthCubit, AuthState>(
-        listener: (context, state) {
-          state.whenOrNull(
-            authenticated: (user) {
-              Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil('/home', (route) => false);
-              
-            },
-            error: (msg) => ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(msg))),
-          );
-        },
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: (AppLocalizations.of(
-                      context,
-                    )!.register_screen_email),
-                  ),
-                ),
-                TextField(
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: (AppLocalizations.of(
-                      context,
-                    )!.register_screen_password),
-                  ),
-                  obscureText: true,
-                ),
-                SizedBox(height: 20),
-                state.maybeWhen(
-                  loading: () => const CircularProgressIndicator(),
-                  orElse: () => ElevatedButton(
-                    onPressed: () => context.read<AuthCubit>().register(
-                      _emailController.text,
-                      _passwordController.text,
-                    ),
-                    child: Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.register_screen_create_account,
-                    ),
-                  ),
-                ),
-              ],
             ),
           );
         },
