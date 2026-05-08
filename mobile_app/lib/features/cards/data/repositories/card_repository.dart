@@ -11,7 +11,6 @@ class CardRepository {
   Future<String?> getServerUserId(String email) => _db.getServerUserId(email);
 
   Future<void> updateCardProgress(String cardId, String userId, int quality) async {
-    // 1. Получаем текущий прогресс из базы
     final currentProgress = await (_db.select(_db.cardProgress)
           ..where((t) => t.cardId.equals(cardId) & t.userId.equals(userId)))
         .getSingleOrNull();
@@ -20,9 +19,7 @@ class CardRepository {
     double ef = currentProgress?.easinessFactor ?? 2.5;
     int interval = currentProgress?.interval ?? 0;
 
-    // 2. Алгоритм интервального повторения (упрощенный SM-2)
     if (quality >= 3) {
-      // Свайп вправо (хорошо выучили)
       repetitions += 1;
       if (repetitions == 1) {
         interval = 1;
@@ -32,10 +29,8 @@ class CardRepository {
         interval = (interval * ef).round();
       }
       
-      // Повышаем фактор легкости
       ef = ef + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
     } else {
-      // Свайп влево (забыли)
       repetitions = 0;
       interval = 1;
       ef = ef - 0.8;
@@ -43,10 +38,8 @@ class CardRepository {
 
     if (ef < 1.3) ef = 1.3;
 
-    // Рассчитываем дату следующего повторения
     DateTime nextReview = DateTime.now().toUtc().add(Duration(days: interval));
 
-    // 3. Сохраняем обновленные данные в БД
     await _db.into(_db.cardProgress).insertOnConflictUpdate(
       CardProgressCompanion.insert(
         cardId: cardId,

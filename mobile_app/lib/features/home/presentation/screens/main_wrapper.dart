@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memo_lingvo/features/games/presentation/screens/games_menu_screen.dart';
 import 'package:memo_lingvo/features/home/presentation/widgets/decks_view.dart';
 import 'package:memo_lingvo/features/profile/presentation/screens/profile_screen.dart';
 import 'package:memo_lingvo/features/settings/presentation/settings_screen.dart';
@@ -19,12 +20,12 @@ class MainWrapper extends StatefulWidget {
 class _MainWrapperState extends State<MainWrapper> {
   int _currentIndex = 0;
   
-  final List<Widget> _pages =[
-    Center(child: DecksView()),
-    const Center(child: Text("Выбор игры")),
-    const Center(child: ProfileScreen()),
-    SettingsScreen(),
-  ];
+  final List<Widget> _pages = [
+  const Center(child: DecksView()),
+  const GamesMenuScreen(),   // ← было Center(child: Text("Выбор игры"))
+  const Center(child: ProfileScreen()),
+  SettingsScreen(),
+];
   
   final List<String> _titles =[
     "Мои колоды",

@@ -13,7 +13,6 @@ enum LearningStatus {
   mastered, // 2
 }
 
-// Конвертер для массивов строк (Примеры)
 class StringListConverter extends TypeConverter<List<String>, String> {
   const StringListConverter();
   @override
@@ -22,11 +21,31 @@ class StringListConverter extends TypeConverter<List<String>, String> {
   String toSql(List<String> value) => jsonEncode(value);
 }
 
-// 1. ТАБЛИЦА USERS
 class UsersTable extends Table {
-  TextColumn get id => text()(); // Это будет UID из Firebase
+  TextColumn get id => text()(); 
   TextColumn get email => text()();
   DateTimeColumn get createdAt => dateTime()();
+ 
+  //TODO Backend User Table
+  IntColumn get rank => integer().withDefault(const Constant(0))();
+  IntColumn get experience => integer().withDefault(const Constant(0))();
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+//TODO Game Sessions
+class GameSessions extends Table {
+  TextColumn get id => text()();
+  TextColumn get userId => text().references(UsersTable, #id)();
+  TextColumn get gameType => text()();    
+  TextColumn get result => text()();      
+  IntColumn get score => integer()();     
+  IntColumn get timeTakenSeconds => integer()(); 
+  IntColumn get accuracyPercent => integer()();  
+  DateTimeColumn get playedAt => dateTime()();
+  
+  DateTimeColumn get updateAt => dateTime()();
+  BoolColumn get isDirty => boolean().withDefault(const Constant(false))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -96,23 +115,32 @@ class DeckWithCount {
   DeckWithCount(this.deck, this.cardCount);
 }
 
-@DriftDatabase(tables: [UsersTable, Decks, Cards, CardProgress])
+@DriftDatabase(tables: [UsersTable, Decks, Cards, CardProgress, GameSessions])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // Добавляем таблицу game_sessions
+        await m.createTable(gameSessions);
+        // Добавляем колонки в users_table
+        await m.addColumn(usersTable, usersTable.experience);
+        await m.addColumn(usersTable, usersTable.rank);
+      }
+    },
   );
 
-  // В файле: lib/core/database/app_database.dart (внутри класса AppDatabase)
 
-  // ДОБАВИТЬ МЕТОД: Получение серверного ID по email
+
+
   Future<String?> getServerUserId(String email) async {
     final user = await (select(usersTable)..where((t) => t.email.equals(email))).getSingleOrNull();
     return user?.id;

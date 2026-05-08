@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:memo_lingvo/features/games/domain/entities/user_rank.dart';
 
 class ApiClient {
   final Dio _dio;
@@ -129,4 +130,39 @@ class ApiClient {
       print('❌ Ошибка ApiClient ($model): $e');
     }
   }
+
+
+  // Методы для игр (заглушки)
+
+Future<bool> submitGameResult({
+  required String userId,
+  required String gameType,
+  required String result,
+  required int score,
+  required int timeTakenSeconds,
+  required int accuracyPercent,
+}) async {
+  // Эндпоинт: POST /Game/SubmitResult
+  // Пока просто логируем и возвращаем true
+  print('🎮 Отправка результата игры: $gameType, $result, очки: $score');
+  return true;
+}
+
+Future<List<UserRank>> getLeaderboard() async {
+  // Эндпоинт: GET /Game/Leaderboard
+  // Возвращаем мок-данные
+  return [
+    UserRank(userId: '1', email: 'player1@test.com', experience: 4500, rank: 2),
+    UserRank(userId: '2', email: 'player2@test.com', experience: 3200, rank: 1),
+    UserRank(userId: '3', email: 'player3@test.com', experience: 800, rank: 0),
+  ];
+}
+
+Future<Map<String, dynamic>?> getBotProfile(String userId) async {
+  // Получить "профиль бота" для балансировки – например, статистику игрока для имитации
+  return {
+    'averageSpeed': 5.0, // секунд на правильный ответ
+    'accuracy': 85,
+  };
+}
 }

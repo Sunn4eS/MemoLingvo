@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/core/localization/locale_cubit.dart';
+import 'package:memo_lingvo/core/network/api_client.dart';
 import 'package:memo_lingvo/core/theme/theme_cubit.dart';
 import 'package:memo_lingvo/features/auth/data/repositories/auth_repository.dart';
 import 'package:memo_lingvo/features/auth/logic/auth_cubit.dart';
 import 'package:memo_lingvo/features/cards/data/repositories/card_repository.dart';
 import 'package:memo_lingvo/features/decks/data/repositories/deck_repository.dart';
 import 'package:memo_lingvo/features/decks/logic/deck_cubit.dart';
+import 'package:memo_lingvo/features/games/data/repositories/game_repository.dart';
 import 'package:memo_lingvo/features/profile/data/repositories/profile_repository.dart';
 import 'package:memo_lingvo/features/profile/logic/profile_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +21,12 @@ class AppProviders extends StatelessWidget {
   final AppDatabase database;
   final SharedPreferences prefs;
 
-  const AppProviders({super.key, required this.child, required this.database, required this.prefs});
+  const AppProviders({
+    super.key,
+    required this.child,
+    required this.database,
+    required this.prefs,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +43,24 @@ class AppProviders extends StatelessWidget {
             context.read<SharedPreferences>(),
           ),
         ),
+
+        RepositoryProvider(
+          create: (context) => GameRepository(
+            context.read<AppDatabase>(),
+            context.read<ApiClient>(),
+          ),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
-          BlocProvider(create: (context) => AuthCubit(context.read<AuthRepository>(), database)),
-          BlocProvider(create: (context) => DeckCubit(context.read<DeckRepository>())),
-           BlocProvider(create: (context) => NetworkCubit()),
+          BlocProvider(
+            create: (context) =>
+                AuthCubit(context.read<AuthRepository>(), database),
+          ),
+          BlocProvider(
+            create: (context) => DeckCubit(context.read<DeckRepository>()),
+          ),
+          BlocProvider(create: (context) => NetworkCubit()),
           BlocProvider(create: (context) => ThemeCubit(prefs)),
           BlocProvider(create: (context) => LocaleCubit(prefs)),
           BlocProvider(
