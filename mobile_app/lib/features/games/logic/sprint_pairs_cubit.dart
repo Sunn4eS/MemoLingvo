@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/database/app_database.dart' as db;
 import 'package:memo_lingvo/features/games/data/repositories/game_repository.dart';
 
-/// Пара слов (оригинал и перевод) для игры
 class Pair {
   final String word;
   final String translation;
@@ -12,19 +10,14 @@ class Pair {
 }
 
 class SprintPairsState {
-  final List<String> leftColumn; // слова на иностранном языке
-  final List<String> rightColumn; // переводы (перемешаны)
+  final List<String> leftColumn;
+  final List<String> rightColumn;
   final String? selectedLeft;
   final String? selectedRight;
   final int playerScore;
-  final int botScore;
-  final int playerPairsFound;
-  final int botPairsFound;
+  final int pairsFound;
   final int totalPairs;
-  final double playerProgress; // доля найденных пар игроком
-  final double botProgress; // доля найденных пар ботом
   final bool isFinished;
-  final String? winner;
   final int timeLeft;
 
   const SprintPairsState({
@@ -33,14 +26,9 @@ class SprintPairsState {
     this.selectedLeft,
     this.selectedRight,
     required this.playerScore,
-    required this.botScore,
-    required this.playerPairsFound,
-    required this.botPairsFound,
+    required this.pairsFound,
     required this.totalPairs,
-    required this.playerProgress,
-    required this.botProgress,
     required this.isFinished,
-    this.winner,
     required this.timeLeft,
   });
 
@@ -51,12 +39,8 @@ class SprintPairsState {
       leftColumn: words,
       rightColumn: translations,
       playerScore: 0,
-      botScore: 0,
-      playerPairsFound: 0,
-      botPairsFound: 0,
+      pairsFound: 0,
       totalPairs: pairs.length,
-      playerProgress: 0.0,
-      botProgress: 0.0,
       isFinished: false,
       timeLeft: timePerGame,
     );
@@ -68,14 +52,9 @@ class SprintPairsState {
     String? selectedLeft,
     String? selectedRight,
     int? playerScore,
-    int? botScore,
-    int? playerPairsFound,
-    int? botPairsFound,
+    int? pairsFound,
     int? totalPairs,
-    double? playerProgress,
-    double? botProgress,
     bool? isFinished,
-    String? winner,
     int? timeLeft,
   }) {
     return SprintPairsState(
@@ -84,14 +63,9 @@ class SprintPairsState {
       selectedLeft: selectedLeft ?? this.selectedLeft,
       selectedRight: selectedRight ?? this.selectedRight,
       playerScore: playerScore ?? this.playerScore,
-      botScore: botScore ?? this.botScore,
-      playerPairsFound: playerPairsFound ?? this.playerPairsFound,
-      botPairsFound: botPairsFound ?? this.botPairsFound,
+      pairsFound: pairsFound ?? this.pairsFound,
       totalPairs: totalPairs ?? this.totalPairs,
-      playerProgress: playerProgress ?? this.playerProgress,
-      botProgress: botProgress ?? this.botProgress,
       isFinished: isFinished ?? this.isFinished,
-      winner: winner ?? this.winner,
       timeLeft: timeLeft ?? this.timeLeft,
     );
   }
@@ -102,92 +76,28 @@ class SprintPairsCubit extends Cubit<SprintPairsState> {
   final String email;
   final List<Pair> _originalPairs;
   Timer? _timer;
-  Timer? _botTimer;
-  final Random _random = Random();
-  final Map<String, dynamic> _botProfile;
   DateTime? _sessionStartTime;
 
-  SprintPairsCubit(
-    this._repository,
-    this.email,
-    this._botProfile,
-    List<db.Card> cards,
-  ) : _originalPairs = cards.map((c) => Pair(c.word, c.translation)).toList(),
+  SprintPairsCubit(this._repository, this.email, List<db.Card> cards)
+    : _originalPairs = cards.map((c) => Pair(c.word, c.translation)).toList(),
       super(
         SprintPairsState.initial(
           cards.map((c) => Pair(c.word, c.translation)).toList(),
-          60, // 60 секунд на игру
+          60,
         ),
       ) {
     _sessionStartTime = DateTime.now();
-    _startTimers();
+    _startTimer();
   }
 
-  void _startTimers() {
+  void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.timeLeft <= 1) {
-        _timer?.cancel();
         _finishGame();
       } else {
         emit(state.copyWith(timeLeft: state.timeLeft - 1));
       }
     });
-
-    // Бот пытается найти пару с интервалом, зависящим от его скорости
-    _scheduleBotMove();
-  }
-
-  void _scheduleBotMove() {
-    _botTimer?.cancel();
-    final delay = Duration(
-      milliseconds:
-          (1000 + _random.nextInt(3000) * (_botProfile['averageSpeed'] / 5.0))
-              .toInt(),
-    );
-    _botTimer = Timer(delay, () {
-      if (state.isFinished) return;
-      _botFindPair();
-    });
-  }
-
-  void _botFindPair() {
-    // Упрощённо: бот просто удаляет одну пару из оставшихся
-    if (state.leftColumn.isEmpty) {
-      _finishGame();
-      return;
-    }
-    final index = _random.nextInt(state.leftColumn.length);
-    final word = state.leftColumn[index];
-    final correctTranslation = _originalPairs
-        .firstWhere((p) => p.word == word)
-        .translation;
-    // Проверяем, есть ли перевод в правой колонке
-    if (state.rightColumn.contains(correctTranslation)) {
-      final newLeft = List<String>.from(state.leftColumn)..remove(word);
-      final newRight = List<String>.from(state.rightColumn)
-        ..remove(correctTranslation);
-      final newBotScore = state.botScore + 100;
-      final newBotPairs = state.botPairsFound + 1;
-      emit(
-        state.copyWith(
-          leftColumn: newLeft,
-          rightColumn: newRight,
-          botScore: newBotScore,
-          botPairsFound: newBotPairs,
-          botProgress: newBotPairs / state.totalPairs,
-          selectedLeft: null,
-          selectedRight: null,
-        ),
-      );
-      if (newLeft.isEmpty) {
-        _finishGame();
-      } else {
-        _scheduleBotMove();
-      }
-    } else {
-      // Если перевод уже убран (маловероятно), пропускаем
-      _scheduleBotMove();
-    }
   }
 
   void selectLeft(String word) {
@@ -219,15 +129,16 @@ class SprintPairsCubit extends Cubit<SprintPairsState> {
         // Правильная пара!
         final newLeft = List<String>.from(state.leftColumn)..remove(left);
         final newRight = List<String>.from(state.rightColumn)..remove(right);
-        final newScore = state.playerScore + 100;
-        final newPairs = state.playerPairsFound + 1;
+        // Бонус за скорость: чем больше времени осталось, тем выше награда
+        final roundScore = 50 + state.timeLeft * 2;
+        final newScore = state.playerScore + roundScore;
+        final newPairs = state.pairsFound + 1;
         emit(
           state.copyWith(
             leftColumn: newLeft,
             rightColumn: newRight,
             playerScore: newScore,
-            playerPairsFound: newPairs,
-            playerProgress: newPairs / state.totalPairs,
+            pairsFound: newPairs,
             selectedLeft: null,
             selectedRight: null,
           ),
@@ -236,7 +147,7 @@ class SprintPairsCubit extends Cubit<SprintPairsState> {
           _finishGame();
         }
       } else {
-        // Ошибка – снимаем выделение и небольшой штраф (не блокируем)
+        // Ошибка – небольшой штраф
         emit(
           state.copyWith(
             selectedLeft: null,
@@ -251,42 +162,30 @@ class SprintPairsCubit extends Cubit<SprintPairsState> {
   Future<void> _finishGame() async {
     if (state.isFinished) return;
     _timer?.cancel();
-    _botTimer?.cancel();
-
-    String winner = 'draw';
-    if (state.playerScore > state.botScore) {
-      winner = 'player';
-    } else if (state.botScore > state.playerScore) {
-      winner = 'bot';
-    }
 
     final totalTime = DateTime.now().difference(_sessionStartTime!).inSeconds;
-    final accuracy = (state.playerPairsFound > 0)
-        ? ((state.playerPairsFound / (state.playerPairsFound + 1)) * 100)
-              .toInt()
-        : 0; // Упрощённо
+    final accuracy = state.totalPairs > 0
+        ? ((state.pairsFound / state.totalPairs) * 100).toInt()
+        : 0;
 
     final serverUserId = await _repository.database.getServerUserId(email);
     if (serverUserId != null) {
       await _repository.saveGameResult(
         userId: serverUserId,
         gameType: 'sprint_pairs',
-        result: winner == 'player'
-            ? 'win'
-            : (winner == 'bot' ? 'lose' : 'draw'),
+        result: 'completed',
         score: state.playerScore,
         timeTakenSeconds: totalTime,
         accuracyPercent: accuracy,
       );
     }
 
-    emit(state.copyWith(isFinished: true, winner: winner));
+    emit(state.copyWith(isFinished: true));
   }
 
   @override
   Future<void> close() {
     _timer?.cancel();
-    _botTimer?.cancel();
     return super.close();
   }
 }

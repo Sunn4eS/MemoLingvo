@@ -29,36 +29,12 @@ class SprintPairsScreen extends StatelessWidget {
             body: const Center(child: Text('Недостаточно карточек')),
           );
         }
-
-        return _SprintProvider(email: email, cards: cards);
-      },
-    );
-  }
-
-  Future<List<db.Card>> _fetchCards(BuildContext context) async {
-    final db = context.read<AppDatabase>();
-    final query = db.select(db.cards)..where((t) => t.isDeleted.equals(false));
-    final allCards = await query.get();
-    allCards.shuffle();
-    return allCards.take(8).toList(); // 8 пар для игры
-  }
-}
-
-class _SprintProvider extends StatelessWidget {
-  final String email;
-  final List<db.Card> cards;
-  const _SprintProvider({required this.email, required this.cards});
-
-  @override
-  Widget build(BuildContext context) {
-    final repo = context.read<GameRepository>();
-    return FutureBuilder<Map<String, dynamic>>(
-      future: repo.getBotProfile(email),
-      builder: (context, snapshot) {
-        final botProfile =
-            snapshot.data ?? {'averageSpeed': 4.0, 'accuracy': 80};
         return BlocProvider(
-          create: (_) => SprintPairsCubit(repo, email, botProfile, cards),
+          create: (_) => SprintPairsCubit(
+            context.read<GameRepository>(),
+            email,
+            cards,
+          ),
           child: Scaffold(
             appBar: AppBar(title: const Text('Спринт-пары')),
             body: BlocBuilder<SprintPairsCubit, SprintPairsState>(
@@ -68,30 +44,14 @@ class _SprintProvider extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          state.winner == 'player'
-                              ? Icons.emoji_events
-                              : Icons.sentiment_dissatisfied,
-                          size: 80,
-                          color: state.winner == 'player'
-                              ? Colors.orange
-                              : Colors.grey,
-                        ),
+                        const Icon(Icons.emoji_events,
+                            size: 80, color: Colors.orange),
                         const SizedBox(height: 16),
-                        Text(
-                          state.winner == 'player'
-                              ? 'Победа!'
-                              : state.winner == 'bot'
-                              ? 'Бот выиграл'
-                              : 'Ничья',
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        Text('Игра окончена!',
+                            style: const TextStyle(
+                                fontSize: 28, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 12),
                         Text('Ваш счёт: ${state.playerScore}'),
-                        Text('Счёт бота: ${state.botScore}'),
                         const SizedBox(height: 24),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context),
@@ -108,5 +68,13 @@ class _SprintProvider extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<List<db.Card>> _fetchCards(BuildContext context) async {
+    final db = context.read<AppDatabase>();
+    final query = db.select(db.cards)..where((t) => t.isDeleted.equals(false));
+    final allCards = await query.get();
+    allCards.shuffle();
+    return allCards.take(8).toList();
   }
 }

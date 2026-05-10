@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/database/app_database.dart' as db;
 import 'package:memo_lingvo/features/games/data/repositories/game_repository.dart';
@@ -8,15 +7,11 @@ class WordDuelState {
   final List<String> shuffledLetters;
   final List<String> playerAnswer;
   final String targetWord;
-  final String promptWord;         // русское слово
+  final String promptWord; // русское слово
   final int playerScore;
-  final int botScore;
-  final double playerProgress;     // 0..1
-  final double botProgress;
   final int round;
   final int totalRounds;
   final bool isFinished;
-  final String? winner;            // 'player', 'bot', 'draw'
   final int timeLeft;
 
   const WordDuelState({
@@ -25,13 +20,9 @@ class WordDuelState {
     required this.targetWord,
     required this.promptWord,
     required this.playerScore,
-    required this.botScore,
-    required this.playerProgress,
-    required this.botProgress,
     required this.round,
     required this.totalRounds,
     required this.isFinished,
-    this.winner,
     required this.timeLeft,
   });
 
@@ -41,9 +32,6 @@ class WordDuelState {
     targetWord: '',
     promptWord: '',
     playerScore: 0,
-    botScore: 0,
-    playerProgress: 0.0,
-    botProgress: 0.0,
     round: 0,
     totalRounds: totalRounds,
     isFinished: false,
@@ -56,13 +44,9 @@ class WordDuelState {
     String? targetWord,
     String? promptWord,
     int? playerScore,
-    int? botScore,
-    double? playerProgress,
-    double? botProgress,
     int? round,
     int? totalRounds,
     bool? isFinished,
-    String? winner,
     int? timeLeft,
   }) {
     return WordDuelState(
@@ -71,13 +55,9 @@ class WordDuelState {
       targetWord: targetWord ?? this.targetWord,
       promptWord: promptWord ?? this.promptWord,
       playerScore: playerScore ?? this.playerScore,
-      botScore: botScore ?? this.botScore,
-      playerProgress: playerProgress ?? this.playerProgress,
-      botProgress: botProgress ?? this.botProgress,
       round: round ?? this.round,
       totalRounds: totalRounds ?? this.totalRounds,
       isFinished: isFinished ?? this.isFinished,
-      winner: winner ?? this.winner,
       timeLeft: timeLeft ?? this.timeLeft,
     );
   }
@@ -86,15 +66,12 @@ class WordDuelState {
 class WordDuelCubit extends Cubit<WordDuelState> {
   final GameRepository _repository;
   final String email;
-  Timer? _timer;
-  Timer? _botTimer;
-  final Map<String, dynamic> _botProfile;
+  Timer? _roundTimer;
   final List<db.Card> _cards;
-  final Random _random = Random();
   DateTime? _sessionStartTime;
 
-  WordDuelCubit(this._repository, this.email, this._botProfile, this._cards)
-      : super(WordDuelState.initial(_cards.length > 5 ? 5 : _cards.length)) {
+  WordDuelCubit(this._repository, this.email, this._cards)
+    : super(WordDuelState.initial(_cards.length > 5 ? 5 : _cards.length)) {
     _sessionStartTime = DateTime.now();
     _startRound();
   }
@@ -106,46 +83,38 @@ class WordDuelCubit extends Cubit<WordDuelState> {
     }
     final card = _cards[state.round % _cards.length];
     final letters = card.word.split('')..shuffle();
-    // Проверяем, чтобы буквы точно перемешались не в исходном порядке
     if (letters.join() == card.word) letters.shuffle();
-    emit(state.copyWith(
-      shuffledLetters: letters,
-      targetWord: card.word,
-      promptWord: card.translation,
-      playerAnswer: [],
-      timeLeft: 15,
-    ));
-    _startTimers();
+    emit(
+      state.copyWith(
+        shuffledLetters: letters,
+        targetWord: card.word,
+        promptWord: card.translation,
+        playerAnswer: [],
+        timeLeft: 15,
+      ),
+    );
+    _startRoundTimer();
   }
 
-  void _startTimers() {
-    _timer?.cancel();
-    _botTimer?.cancel();
-
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+  void _startRoundTimer() {
+    _roundTimer?.cancel();
+    _roundTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (state.timeLeft <= 1) {
         _onTimeUp();
       } else {
         emit(state.copyWith(timeLeft: state.timeLeft - 1));
       }
     });
-
-    // Бот “думает” случайное время в зависимости от его средней скорости
-    final botDelay = Duration(
-      milliseconds: (500 + _random.nextInt(3000) * (_botProfile['averageSpeed'] / 5.0)).toInt(),
-    );
-    _botTimer = Timer(botDelay, () {
-      if (!state.isFinished && state.playerAnswer.join() != state.targetWord) {
-        _botSolve();
-      }
-    });
   }
 
   void addLetter(String letter) {
     if (state.shuffledLetters.contains(letter)) {
-      final newShuffled = List<String>.from(state.shuffledLetters)..remove(letter);
+      final newShuffled = List<String>.from(state.shuffledLetters)
+        ..remove(letter);
       final newAnswer = List<String>.from(state.playerAnswer)..add(letter);
-      emit(state.copyWith(playerAnswer: newAnswer, shuffledLetters: newShuffled));
+      emit(
+        state.copyWith(playerAnswer: newAnswer, shuffledLetters: newShuffled),
+      );
       if (newAnswer.join() == state.targetWord) {
         _playerSolved();
       }
@@ -160,76 +129,47 @@ class WordDuelCubit extends Cubit<WordDuelState> {
   }
 
   void _playerSolved() {
-    _timer?.cancel();
-    _botTimer?.cancel();
-    final newScore = state.playerScore + 100;
-    final progress = (state.round + 1) / state.totalRounds;
-    emit(state.copyWith(
-      playerScore: newScore,
-      playerProgress: progress,
-      round: state.round + 1,
-    ));
-    _startRound();
-  }
-
-  void _botSolve() {
-    if (state.isFinished) return;
-    _timer?.cancel();
-    final newScore = state.botScore + 100;
-    final progress = (state.round + 1) / state.totalRounds;
-    emit(state.copyWith(
-      botScore: newScore,
-      botProgress: progress,
-      round: state.round + 1,
-    ));
+    _roundTimer?.cancel();
+    // Очки за раунд: базовая награда 50 + по 10 за каждую оставшуюся секунду
+    final roundScore = 50 + state.timeLeft * 10;
+    final newScore = state.playerScore + roundScore;
+    emit(state.copyWith(playerScore: newScore, round: state.round + 1));
     _startRound();
   }
 
   void _onTimeUp() {
-    _timer?.cancel();
-    _botTimer?.cancel();
-    // Бот получает очки за раунд
-    final newBotScore = state.botScore + 50;
-    emit(state.copyWith(
-      botScore: newBotScore,
-      botProgress: (state.round + 1) / state.totalRounds,
-      round: state.round + 1,
-    ));
+    _roundTimer?.cancel();
+    // Время вышло — очков не даём, переходим к следующему раунду
+    emit(state.copyWith(round: state.round + 1));
     _startRound();
   }
 
   Future<void> _finishGame() async {
-    _timer?.cancel();
-    _botTimer?.cancel();
-    String winner = 'draw';
-    if (state.playerScore > state.botScore) {
-      winner = 'player';
-    } else if (state.botScore > state.playerScore) {
-      winner = 'bot';
-    }
-
+    _roundTimer?.cancel();
     final totalTime = DateTime.now().difference(_sessionStartTime!).inSeconds;
-    final accuracy = state.playerScore > 0 ? 100 : 0; // Упрощённо
+    // Точность: все раунды решены правильно (грубая оценка)
+    final accuracy = state.totalRounds > 0
+        ? ((state.round / state.totalRounds) * 100).toInt()
+        : 0;
 
     final serverUserId = await _repository.database.getServerUserId(email);
     if (serverUserId != null) {
       await _repository.saveGameResult(
         userId: serverUserId,
         gameType: 'word_duel',
-        result: winner == 'player' ? 'win' : (winner == 'bot' ? 'lose' : 'draw'),
+        result: 'completed',
         score: state.playerScore,
         timeTakenSeconds: totalTime,
         accuracyPercent: accuracy,
       );
     }
 
-    emit(state.copyWith(isFinished: true, winner: winner));
+    emit(state.copyWith(isFinished: true));
   }
 
   @override
   Future<void> close() {
-    _timer?.cancel();
-    _botTimer?.cancel();
+    _roundTimer?.cancel();
     return super.close();
   }
 }

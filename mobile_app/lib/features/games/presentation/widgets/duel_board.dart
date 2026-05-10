@@ -12,57 +12,38 @@ class DuelBoard extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Прогресс-бары "каната"
-          Row(
-            children: [
-              Expanded(
-                child: LinearProgressIndicator(
-                  value: state.playerProgress,
-                  backgroundColor: Colors.grey.shade300,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-                  minHeight: 20,
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Icon(Icons.swap_horiz, size: 32),
-              ),
-              Expanded(
-                child: LinearProgressIndicator(
-                  value: state.botProgress,
-                  backgroundColor: Colors.grey.shade300,
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
-                  minHeight: 20,
-                ),
-              ),
-            ],
+          // Прогресс: только игрок
+          LinearProgressIndicator(
+            value: state.round / state.totalRounds,
+            backgroundColor: Colors.grey.shade300,
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+            minHeight: 20,
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Вы: ${state.playerScore}'),
-              Text('Бот: ${state.botScore}'),
+              Text('Счёт: ${state.playerScore}'),
+              Text('Раунд ${state.round + 1}/${state.totalRounds}'),
             ],
           ),
           const SizedBox(height: 12),
-          // Таймер
-          Text('Осталось: ${state.timeLeft} сек', style: const TextStyle(fontSize: 18)),
+          Text('Осталось: ${state.timeLeft} сек',
+              style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 16),
-          // Подсказка (русское слово)
           Text(
             state.promptWord,
             style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 24),
-          // Выбранные буквы
           Wrap(
             spacing: 8,
             children: List.generate(state.playerAnswer.length, (index) {
               return GestureDetector(
                 onTap: () => context.read<WordDuelCubit>().removeLetter(index),
                 child: Chip(
-                  label: Text(state.playerAnswer[index], style: const TextStyle(fontSize: 24)),
+                  label: Text(state.playerAnswer[index],
+                      style: const TextStyle(fontSize: 24)),
                   backgroundColor: Colors.green.shade100,
                   deleteIcon: const Icon(Icons.close, size: 18),
                 ),
@@ -70,7 +51,6 @@ class DuelBoard extends StatelessWidget {
             }),
           ),
           const Divider(height: 32),
-          // Доступные буквы
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -88,7 +68,8 @@ class DuelBoard extends StatelessWidget {
                   ),
                   child: Text(
                     letter,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
               );
