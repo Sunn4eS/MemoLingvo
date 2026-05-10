@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:memo_lingvo/features/games/domain/entities/user_rank.dart';
 import 'package:memo_lingvo/features/games/logic/games_menu_cubit.dart';
+import 'package:memo_lingvo/features/games/data/repositories/game_repository.dart';
 import 'package:memo_lingvo/features/games/presentation/screens/word_duel_screen.dart';
 import 'package:memo_lingvo/features/games/presentation/screens/sprint_pairs_screen.dart';
 import 'package:memo_lingvo/features/games/presentation/widgets/leaderboard_widget.dart';
-import 'package:memo_lingvo/features/games/data/repositories/game_repository.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class GamesMenuScreen extends StatelessWidget {
   const GamesMenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final email = FirebaseAuth.instance.currentUser?.email;
+    if (email == null) return const Center(child: Text('Вы не авторизованы'));
+
     return BlocProvider(
-      create: (context) => GamesMenuCubit(context.read<GameRepository>())
-        ..loadStats(userId),
+      create: (_) => GamesMenuCubit(context.read<GameRepository>())..loadStats(email),
       child: BlocBuilder<GamesMenuCubit, GamesMenuState>(
         builder: (context, state) {
-          final rank = state.userRank;
           return Scaffold(
+            appBar: AppBar(title: const Text('Игры')),
             body: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (rank != null) _buildRankCard(rank),
+                  if (state.userRank != null) _buildRankCard(state.userRank!),
                   const SizedBox(height: 20),
                   GridView.count(
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
@@ -40,9 +41,7 @@ class GamesMenuScreen extends StatelessWidget {
                         color: Colors.deepPurple,
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) =>  WordDuelScreen(),
-                          ),
+                          MaterialPageRoute(builder: (_) => const WordDuelScreen()),
                         ),
                       ),
                       _GameCard(
@@ -51,15 +50,12 @@ class GamesMenuScreen extends StatelessWidget {
                         color: Colors.teal,
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const SprintPairsScreen(),
-                          ),
+                          MaterialPageRoute(builder: (_) => const SprintPairsScreen()),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
-                  _SectionTitle('Таблица лидеров'),
                   const LeaderboardWidget(),
                 ],
               ),
@@ -72,38 +68,15 @@ class GamesMenuScreen extends StatelessWidget {
 
   Widget _buildRankCard(UserRank rank) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.military_tech, color: Colors.amber.shade700, size: 32),
-                const SizedBox(width: 8),
-                Text(
-                  rank.rankName,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: rank.progress,
-                minHeight: 10,
-                backgroundColor: Colors.grey.shade200,
-                color: Colors.amber,
-              ),
-            ),
+            Text(rank.rankName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
-            Text(
-              '${rank.experience} / ${rank.experienceToNextRank} XP',
-              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-            ),
+            LinearProgressIndicator(value: rank.progress),
+            const SizedBox(height: 4),
+            Text('${rank.experience} / ${rank.experienceToNextRank} XP'),
           ],
         ),
       ),
@@ -116,7 +89,6 @@ class _GameCard extends StatelessWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onTap;
-
   const _GameCard({
     required this.title,
     required this.icon,
@@ -127,13 +99,13 @@ class _GameCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 4,
+      elevation: 6,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -142,29 +114,11 @@ class _GameCard extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle(this.title);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
       ),
     );
   }

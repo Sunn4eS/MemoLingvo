@@ -43,7 +43,7 @@ class AppProviders extends StatelessWidget {
             context.read<SharedPreferences>(),
           ),
         ),
-
+        RepositoryProvider<ApiClient>(create: (_) => ApiClient()),
         RepositoryProvider(
           create: (context) => GameRepository(
             context.read<AppDatabase>(),

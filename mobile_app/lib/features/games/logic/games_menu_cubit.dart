@@ -27,19 +27,25 @@ class GamesMenuState {
 }
 
 class GamesMenuCubit extends Cubit<GamesMenuState> {
-  final GameRepository _repository;
+  final GameRepository _repo;
+  GamesMenuCubit(this._repo) : super(GamesMenuState());
 
-  GamesMenuCubit(this._repository) : super(const GamesMenuState());
+  Future<void> loadStats(String email) async {  
+    final userId = await _repo.database.getServerUserId(email);
+    if (userId == null) {
+      emit(GamesMenuState());
+      return;
+    }
 
-  Future<void> loadStats(String userId) async {
-    final rank = await _repository.getUserRank(userId);
-    // Слушаем один раз историю игр для подсчёта
-    final sessions = await _repository.watchSessions(userId).first;
+    final rank = await _repo.getUserRank(userId);
+    final sessions = await _repo.watchSessions(userId).first;
     final wins = sessions.where((s) => s.result == 'win').length;
-    emit(GamesMenuState(
-      userRank: rank,
-      totalGamesPlayed: sessions.length,
-      wins: wins,
-    ));
+    emit(
+      GamesMenuState(
+        userRank: rank,
+        totalGamesPlayed: sessions.length,
+        wins: wins,
+      ),
+    );
   }
 }

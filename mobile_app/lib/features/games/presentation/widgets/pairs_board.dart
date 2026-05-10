@@ -1,46 +1,111 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/features/games/logic/sprint_pairs_cubit.dart';
 
 class PairsBoard extends StatelessWidget {
   final SprintPairsState state;
-  final void Function(String id) onSelectLeft;
-  final void Function(String id) onSelectRight;
-
-  const PairsBoard({
-    super.key,
-    required this.state,
-    required this.onSelectLeft,
-    required this.onSelectRight,
-  });
+  const PairsBoard({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<SprintPairsCubit>();
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         children: [
-          // Информационная панель
-          _InfoPanel(state: state),
+          // Прогресс-бары и таймер
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    LinearProgressIndicator(
+                      value: state.playerProgress,
+                      backgroundColor: Colors.grey.shade300,
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                      minHeight: 14,
+                    ),
+                    const Text('Вы'),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  children: [
+                    LinearProgressIndicator(
+                      value: state.botProgress,
+                      backgroundColor: Colors.grey.shade300,
+                      valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
+                      minHeight: 14,
+                    ),
+                    const Text('Бот'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text('Осталось: ${state.timeLeft} сек', style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 16),
           Expanded(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Левая колонка
                 Expanded(
-                  child: _PairColumn(
-                    items: state.leftItems,
-                    title: 'Слово',
-                    selectedId: state.selectedLeftId,
-                    onTap: onSelectLeft,
+                  child: ListView(
+                    children: state.leftColumn.map((word) {
+                      final isSelected = state.selectedLeft == word;
+                      return GestureDetector(
+                        onTap: () => cubit.selectLeft(word),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isSelected ? Colors.green.shade100 : Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: isSelected ? Border.all(color: Colors.green, width: 2) : null,
+                          ),
+                          child: Text(
+                            word,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
                 const SizedBox(width: 16),
+                // Правая колонка
                 Expanded(
-                  child: _PairColumn(
-                    items: state.rightItems,
-                    title: 'Перевод',
-                    selectedId: state.selectedRightId,
-                    onTap: onSelectRight,
+                  child: ListView(
+                    children: state.rightColumn.map((translation) {
+                      final isSelected = state.selectedRight == translation;
+                      return GestureDetector(
+                        onTap: () => cubit.selectRight(translation),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isSelected ? Colors.green.shade100 : Colors.orange.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: isSelected ? Border.all(color: Colors.green, width: 2) : null,
+                          ),
+                          child: Text(
+                            translation,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ],
@@ -48,141 +113,6 @@ class PairsBoard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _InfoPanel extends StatelessWidget {
-  final SprintPairsState state;
-  const _InfoPanel({required this.state});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Column(
-            children: [
-              const Text('Вы', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('${state.playerScore}'),
-            ],
-          ),
-          Column(
-            children: [
-              const Text('Бот', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('${state.botScore}'),
-            ],
-          ),
-          Column(
-            children: [
-              const Text('Пары'),
-              Text('${state.pairedCount}/${state.totalPairs}'),
-            ],
-          ),
-          Column(
-            children: [
-              const Text('Время'),
-              Text('${state.timeLeft}с'),
-            ],
-          ),
-          Column(
-            children: [
-              const Text('Ошибки'),
-              Text('${state.mistakes}'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PairColumn extends StatelessWidget {
-  final List<PairItem> items;
-  final String title;
-  final String? selectedId;
-  final void Function(String) onTap;
-
-  const _PairColumn({
-    required this.items,
-    required this.title,
-    required this.selectedId,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: Theme.of(context).primaryColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-          ),
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              final isSelected = item.id == selectedId;
-              final isMatched = item.matched;
-
-              return GestureDetector(
-                onTap: isMatched ? null : () => onTap(item.id),
-                child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 2),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isMatched
-                        ? Colors.green.shade100
-                        : isSelected
-                            ? Colors.blue.shade100
-                            : Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: isMatched
-                          ? Colors.green
-                          : isSelected
-                              ? Colors.blue
-                              : Colors.grey.shade400,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Center(
-                    child: Text(
-                      item.text,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        decoration: isMatched ? TextDecoration.lineThrough : null,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
     );
   }
 }

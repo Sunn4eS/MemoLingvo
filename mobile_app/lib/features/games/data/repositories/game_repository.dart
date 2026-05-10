@@ -1,8 +1,9 @@
+import 'dart:math';
 import 'package:drift/drift.dart';
-import 'package:memo_lingvo/features/games/domain/entities/user_rank.dart';
 import 'package:uuid/uuid.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/core/network/api_client.dart';
+import 'package:memo_lingvo/features/games/domain/entities/user_rank.dart';
 
 class GameRepository {
   final AppDatabase _db;
@@ -11,9 +12,12 @@ class GameRepository {
 
   GameRepository(this._db, this._api);
 
-  // Сохранить результат локально и отправить на сервер
+  /// Публичный доступ к БД (нужен для получения serverUserId)
+  AppDatabase get database => _db;
+
+  /// Сохранить результат игры локально и отправить на сервер
   Future<void> saveGameResult({
-    required String userId,
+    required String userId,      // serverUserId
     required String gameType,
     required String result,
     required int score,
@@ -23,7 +27,7 @@ class GameRepository {
     final sessionId = _uuid.v4();
     final now = DateTime.now().toUtc();
 
-    // Локальное сохранение
+    // 1. Сохраняем в локальную БД
     await _db.into(_db.gameSessions).insert(
       GameSessionsCompanion.insert(
         id: sessionId,
@@ -39,7 +43,7 @@ class GameRepository {
       ),
     );
 
-    // Отправка на сервер (пока заглушка)
+    // 2. Отправляем на сервер (заглушка)
     await _api.submitGameResult(
       userId: userId,
       gameType: gameType,
@@ -49,16 +53,20 @@ class GameRepository {
       accuracyPercent: accuracyPercent,
     );
 
-    // Обновление опыта (заглушка: начисляем очки)
-    final currentUser = await (_db.select(_db.usersTable)..where((t) => t.id.equals(userId))).getSingle();
-    int newExp = currentUser.experience + score;
-    int newRank = _calculateRank(newExp);
-    await (_db.update(_db.usersTable)..where((t) => t.id.equals(userId))).write(
-      UsersTableCompanion(
-        experience: Value(newExp),
-        rank: Value(newRank),
-      ),
-    );
+    // 3. Обновляем опыт и ранг в локальной таблице users
+    final currentUser = await (_db.select(_db.usersTable)
+          ..where((t) => t.id.equals(userId)))
+        .getSingleOrNull();
+    if (currentUser != null) {
+      int newExp = currentUser.experience + score;
+      int newRank = _calculateRank(newExp);
+      await (_db.update(_db.usersTable)..where((t) => t.id.equals(userId))).write(
+        UsersTableCompanion(
+          experience: Value(newExp),
+          rank: Value(newRank),
+        ),
+      );
+    }
   }
 
   int _calculateRank(int exp) {
@@ -69,7 +77,7 @@ class GameRepository {
     return 4;
   }
 
-  // Получение истории игр пользователя
+  /// Поток истории игр пользователя
   Stream<List<GameSession>> watchSessions(String userId) {
     final query = _db.select(_db.gameSessions)
       ..where((t) => t.userId.equals(userId))
@@ -77,20 +85,38 @@ class GameRepository {
     return query.watch();
   }
 
-  // Получение таблицы лидеров (с сервера или локально) – заглушка
+  /// Таблица лидеров (с сервера)
   Future<List<UserRank>> getLeaderboard() async {
-    // Вызов API с моком (в api_client)
-    return _api.getLeaderboard();
+    final data = await _api.getLeaderboard();
+    return data.map((json) => UserRank(
+      userId: json['userId'] as String,
+      email: json['email'] as String,
+      experience: json['experience'] as int,
+      rank: json['rank'] as int,
+    )).toList();
   }
 
-  // Получение текущего ранга пользователя
-  Future<UserRank> getUserRank(String userId) async {
-    final user = await (_db.select(_db.usersTable)..where((t) => t.id.equals(userId))).getSingle();
+  /// Ранг текущего пользователя (исправленная версия)
+  Future<UserRank?> getUserRank(String serverUserId) async {
+    final user = await (_db.select(_db.usersTable)
+          ..where((t) => t.id.equals(serverUserId)))
+        .getSingleOrNull();
+    if (user == null) return null;
+
     return UserRank(
       userId: user.id,
       email: user.email,
       experience: user.experience,
       rank: user.rank,
     );
+  }
+
+  /// Получить профиль бота с сервера
+  Future<Map<String, dynamic>> getBotProfile(String userId) async {
+    final profile = await _api.getBotProfile(userId);
+    return {
+      'averageSpeed': (profile['averageSpeed'] as num?)?.toDouble() ?? 4.0,
+      'accuracy': (profile['accuracy'] as num?)?.toInt() ?? 80,
+    };
   }
 }

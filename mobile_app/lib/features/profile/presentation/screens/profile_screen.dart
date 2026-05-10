@@ -42,7 +42,9 @@ class ProfileScreen extends StatelessWidget {
                   ElevatedButton.icon(
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const LearnedWordsScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => const LearnedWordsScreen(),
+                      ),
                     ),
                     icon: const Icon(Icons.school),
                     label: const Text('Словарь выученных слов'),
@@ -67,7 +69,10 @@ class ProfileScreen extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
         title: Text(title),
-        trailing: Text('$value', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        trailing: Text(
+          '$value',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -81,7 +86,7 @@ class _GameStatsBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final gameRepo = context.read<GameRepository>();
     return FutureBuilder<UserRank>(
-      future: gameRepo.getUserRank(userId),
+      future: gameRepo.getUserRank(userId).then((value) => value!),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const SizedBox.shrink();
         final rank = snapshot.data!;
@@ -92,13 +97,25 @@ class _GameStatsBlock extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Игровой ранг', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Игровой ранг',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Text(rank.rankName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text(
+                      rank.rankName,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const Spacer(),
-                    Text('${rank.experience} XP', style: const TextStyle(fontSize: 18)),
+                    Text(
+                      '${rank.experience} XP',
+                      style: const TextStyle(fontSize: 18),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
