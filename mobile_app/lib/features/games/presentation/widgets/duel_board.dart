@@ -12,12 +12,20 @@ class DuelBoard extends StatelessWidget {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Прогресс: только игрок
-          LinearProgressIndicator(
-            value: state.round / state.totalRounds,
-            backgroundColor: Colors.grey.shade300,
-            valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-            minHeight: 20,
+          Row(
+            children: [
+              Expanded(
+                child: LinearProgressIndicator(
+                  value: state.round / state.totalRounds,
+                  backgroundColor: Colors.grey.shade300,
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                  minHeight: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text('${state.totalTimeLeft} сек',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ],
           ),
           const SizedBox(height: 8),
           Row(
@@ -28,9 +36,6 @@ class DuelBoard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text('Осталось: ${state.timeLeft} сек',
-              style: const TextStyle(fontSize: 18)),
-          const SizedBox(height: 16),
           Text(
             state.promptWord,
             style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
@@ -74,6 +79,15 @@ class DuelBoard extends StatelessWidget {
                 ),
               );
             }).toList(),
+          ),
+          const Spacer(),
+          ElevatedButton.icon(
+            onPressed: () => context.read<WordDuelCubit>().skipRound(),
+            icon: const Icon(Icons.skip_next),
+            label: const Text('Пропустить'),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 48),
+            ),
           ),
         ],
       ),

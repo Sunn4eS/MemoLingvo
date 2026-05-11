@@ -16,6 +16,10 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
   @override
   void initState() {
     super.initState();
+    _loadLeaderboard();
+  }
+
+  void _loadLeaderboard() {
     _leaderboardFuture = context.read<GameRepository>().getLeaderboard();
   }
 
@@ -27,15 +31,43 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Таблица лидеров', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Таблица лидеров',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    setState(() {
+                      _loadLeaderboard();
+                    });
+                  },
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             FutureBuilder<List<UserRank>>(
               future: _leaderboardFuture,
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                final users = snapshot.data!;
+                if (snapshot.hasError) {
+                  return _buildErrorState();
+                }
+                final users = snapshot.data ?? [];
+                if (users.isEmpty) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Пока нет данных. Сыграйте в игры!',
+                      textAlign: TextAlign.center,
+                    ),
+                  );
+                }
                 return ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -46,7 +78,9 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
                     return ListTile(
                       leading: CircleAvatar(child: Text('${index + 1}')),
                       title: Text(user.email),
-                      subtitle: Text('${user.rankName} • ${user.experience} XP'),
+                      subtitle: Text(
+                        '${user.rankName} • ${user.experience} XP',
+                      ),
                     );
                   },
                 );
@@ -55,6 +89,23 @@ class _LeaderboardWidgetState extends State<LeaderboardWidget> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Column(
+      children: [
+        const Text('Ошибка загрузки'),
+        const SizedBox(height: 8),
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _loadLeaderboard();
+            });
+          },
+          child: const Text('Повторить'),
+        ),
+      ],
     );
   }
 }

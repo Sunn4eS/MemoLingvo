@@ -22,7 +22,7 @@ class _MainWrapperState extends State<MainWrapper> {
   
   final List<Widget> _pages = [
   const Center(child: DecksView()),
-  const GamesMenuScreen(),   // ← было Center(child: Text("Выбор игры"))
+  const GamesMenuScreen(),  
   const Center(child: ProfileScreen()),
   SettingsScreen(),
 ];

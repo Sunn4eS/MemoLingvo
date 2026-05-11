@@ -8,7 +8,8 @@ import 'package:memo_lingvo/features/games/presentation/widgets/duel_board.dart'
 import 'package:memo_lingvo/core/database/app_database.dart';
 
 class WordDuelScreen extends StatelessWidget {
-  const WordDuelScreen({super.key});
+  final String deckId;
+  const WordDuelScreen({super.key, required this.deckId});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class WordDuelScreen extends StatelessWidget {
     if (email == null) return const Center(child: Text('Ошибка авторизации'));
 
     return FutureBuilder<List<db.Card>>(
-      future: _fetchRandomCards(context),
+      future: _fetchCardsFromDeck(context, deckId),
       builder: (context, snapshot) {
         if (!snapshot.hasData)
           return const Scaffold(
@@ -40,6 +41,9 @@ class WordDuelScreen extends StatelessWidget {
             body: BlocBuilder<WordDuelCubit, WordDuelState>(
               builder: (context, state) {
                 if (state.isFinished) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.pop(context, true);
+                  });
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -54,7 +58,7 @@ class WordDuelScreen extends StatelessWidget {
                         Text('Ваш счёт: ${state.playerScore}'),
                         const SizedBox(height: 24),
                         ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.pop(context, true),
                           child: const Text('В меню игр'),
                         ),
                       ],
@@ -70,12 +74,14 @@ class WordDuelScreen extends StatelessWidget {
     );
   }
 
-  Future<List<db.Card>> _fetchRandomCards(BuildContext context) async {
+  Future<List<db.Card>> _fetchCardsFromDeck(BuildContext context, String deckId) async {
     final db = context.read<AppDatabase>();
-    final query = db.select(db.cards)..where((t) => t.isDeleted.equals(false));
-    final allCards = await query.get();
-    if (allCards.isEmpty) return [];
-    allCards.shuffle();
-    return allCards.take(7).toList();
+    final query = db.select(db.cards)
+  ..where((t) => t.deckId.equals(deckId))
+  ..where((t) => t.isDeleted.equals(false));
+    final cards = await query.get();
+    if (cards.isEmpty) return [];
+    cards.shuffle();
+    return cards.take(7).toList();
   }
 }

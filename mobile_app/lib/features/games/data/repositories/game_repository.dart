@@ -17,7 +17,7 @@ class GameRepository {
 
   /// Сохранить результат игры локально и отправить на сервер
   Future<void> saveGameResult({
-    required String userId,      // serverUserId
+    required String userId, // serverUserId
     required String gameType,
     required String result,
     required int score,
@@ -28,20 +28,22 @@ class GameRepository {
     final now = DateTime.now().toUtc();
 
     // 1. Сохраняем в локальную БД
-    await _db.into(_db.gameSessions).insert(
-      GameSessionsCompanion.insert(
-        id: sessionId,
-        userId: userId,
-        gameType: gameType,
-        result: result,
-        score: score,
-        timeTakenSeconds: timeTakenSeconds,
-        accuracyPercent: accuracyPercent,
-        playedAt: now,
-        updateAt: now,
-        isDirty: const Value(true),
-      ),
-    );
+    await _db
+        .into(_db.gameSessions)
+        .insert(
+          GameSessionsCompanion.insert(
+            id: sessionId,
+            userId: userId,
+            gameType: gameType,
+            result: result,
+            score: score,
+            timeTakenSeconds: timeTakenSeconds,
+            accuracyPercent: accuracyPercent,
+            playedAt: now,
+            updateAt: now,
+            isDirty: const Value(true),
+          ),
+        );
 
     // 2. Отправляем на сервер (заглушка)
     await _api.submitGameResult(
@@ -54,19 +56,29 @@ class GameRepository {
     );
 
     // 3. Обновляем опыт и ранг в локальной таблице users
-    final currentUser = await (_db.select(_db.usersTable)
-          ..where((t) => t.id.equals(userId)))
-        .getSingleOrNull();
+    final currentUser = await (_db.select(
+      _db.usersTable,
+    )..where((t) => t.id.equals(userId))).getSingleOrNull();
     if (currentUser != null) {
       int newExp = currentUser.experience + score;
       int newRank = _calculateRank(newExp);
-      await (_db.update(_db.usersTable)..where((t) => t.id.equals(userId))).write(
-        UsersTableCompanion(
-          experience: Value(newExp),
-          rank: Value(newRank),
-        ),
+      await (_db.update(
+        _db.usersTable,
+      )..where((t) => t.id.equals(userId))).write(
+        UsersTableCompanion(experience: Value(newExp), rank: Value(newRank)),
       );
     }
+    // отправка на сервер, если возможно
+    try {
+      await _api.submitGameResult(
+        userId: userId,
+        gameType: gameType,
+        result: result,
+        score: score,
+        timeTakenSeconds: timeTakenSeconds,
+        accuracyPercent: accuracyPercent,
+      );
+    } catch (_) {}
   }
 
   int _calculateRank(int exp) {
@@ -81,26 +93,41 @@ class GameRepository {
   Stream<List<GameSession>> watchSessions(String userId) {
     final query = _db.select(_db.gameSessions)
       ..where((t) => t.userId.equals(userId))
-      ..orderBy([(t) => OrderingTerm(expression: t.playedAt, mode: OrderingMode.desc)]);
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.playedAt, mode: OrderingMode.desc),
+      ]);
     return query.watch();
   }
 
   /// Таблица лидеров (с сервера)
   Future<List<UserRank>> getLeaderboard() async {
-    final data = await _api.getLeaderboard();
-    return data.map((json) => UserRank(
-      userId: json['userId'] as String,
-      email: json['email'] as String,
-      experience: json['experience'] as int,
-      rank: json['rank'] as int,
-    )).toList();
+    try {
+      final serverData = await _api.getLeaderboard();
+      if (serverData.isNotEmpty) {
+        return serverData.map((json) {
+          final id = json['userId'] ?? json['userID'] ?? json['id'] ?? '';
+          final email = json['email'] ?? json['Email'] ?? 'unknown';
+          final exp =
+              (json['experience'] ??
+                      json['experiencePoints'] ??
+                      json['xp'] ??
+                      0)
+                  as int;
+          final rnk = (json['rank'] ?? json['playerRank'] ?? 0) as int;
+          return UserRank(userId: id, email: email, experience: exp, rank: rnk);
+        }).toList();
+      }
+    } catch (e) {
+      print('Ошибка при обработке таблицы лидеров: $e');
+    }
+    return getLocalLeaderboard();
   }
 
   /// Ранг текущего пользователя (исправленная версия)
   Future<UserRank?> getUserRank(String serverUserId) async {
-    final user = await (_db.select(_db.usersTable)
-          ..where((t) => t.id.equals(serverUserId)))
-        .getSingleOrNull();
+    final user = await (_db.select(
+      _db.usersTable,
+    )..where((t) => t.id.equals(serverUserId))).getSingleOrNull();
     if (user == null) return null;
 
     return UserRank(
@@ -118,5 +145,34 @@ class GameRepository {
       'averageSpeed': (profile['averageSpeed'] as num?)?.toDouble() ?? 4.0,
       'accuracy': (profile['accuracy'] as num?)?.toInt() ?? 80,
     };
+  }
+
+  Future<List<DeckWithCount>> getDecksForUser(String userId) async {
+    return _db.watchDecksWithCardCount(userId).first;
+  }
+
+  /// Локальная таблица лидеров – все пользователи, упорядоченные по опыту
+  Future<List<UserRank>> getLocalLeaderboard() async {
+    final users =
+        await (_db.select(_db.usersTable)
+              ..orderBy([
+                (t) => OrderingTerm(
+                  expression: t.experience,
+                  mode: OrderingMode.desc,
+                ),
+              ])
+              ..limit(20))
+            .get();
+
+    return users
+        .map(
+          (u) => UserRank(
+            userId: u.id,
+            email: u.email,
+            experience: u.experience,
+            rank: u.rank,
+          ),
+        )
+        .toList();
   }
 }

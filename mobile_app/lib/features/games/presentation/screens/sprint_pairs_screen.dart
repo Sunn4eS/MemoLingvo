@@ -8,7 +8,8 @@ import 'package:memo_lingvo/features/games/presentation/widgets/pairs_board.dart
 import 'package:memo_lingvo/core/database/app_database.dart';
 
 class SprintPairsScreen extends StatelessWidget {
-  const SprintPairsScreen({super.key});
+  final String deckId;
+  const SprintPairsScreen({super.key, required this.deckId});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class SprintPairsScreen extends StatelessWidget {
     if (email == null) return const Center(child: Text('Ошибка авторизации'));
 
     return FutureBuilder<List<db.Card>>(
-      future: _fetchCards(context),
+      future: _fetchCardsFromDeck(context, deckId),
       builder: (context, snapshot) {
         if (!snapshot.hasData)
           return const Scaffold(
@@ -30,31 +31,38 @@ class SprintPairsScreen extends StatelessWidget {
           );
         }
         return BlocProvider(
-          create: (_) => SprintPairsCubit(
-            context.read<GameRepository>(),
-            email,
-            cards,
-          ),
+          create: (_) =>
+              SprintPairsCubit(context.read<GameRepository>(), email, cards),
           child: Scaffold(
             appBar: AppBar(title: const Text('Спринт-пары')),
             body: BlocBuilder<SprintPairsCubit, SprintPairsState>(
               builder: (context, state) {
                 if (state.isFinished) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    Navigator.pop(context, true);
+                  });
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.emoji_events,
-                            size: 80, color: Colors.orange),
+                        const Icon(
+                          Icons.emoji_events,
+                          size: 80,
+                          color: Colors.orange,
+                        ),
                         const SizedBox(height: 16),
-                        Text('Игра окончена!',
-                            style: const TextStyle(
-                                fontSize: 28, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Игра окончена!',
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         const SizedBox(height: 12),
                         Text('Ваш счёт: ${state.playerScore}'),
                         const SizedBox(height: 24),
                         ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.pop(context, true),
                           child: const Text('В меню игр'),
                         ),
                       ],
@@ -70,11 +78,18 @@ class SprintPairsScreen extends StatelessWidget {
     );
   }
 
-  Future<List<db.Card>> _fetchCards(BuildContext context) async {
+  Future<List<db.Card>> _fetchCardsFromDeck(
+    BuildContext context,
+    String deckId,
+  ) async {
     final db = context.read<AppDatabase>();
-    final query = db.select(db.cards)..where((t) => t.isDeleted.equals(false));
-    final allCards = await query.get();
-    allCards.shuffle();
-    return allCards.take(8).toList();
+    final query = db.select(db.cards)
+      ..where((t) => t.deckId.equals(deckId))
+      ..where((t) => t.isDeleted.equals(false));
+
+    final cards = await query.get();
+    if (cards.isEmpty) return [];
+    cards.shuffle();
+    return cards.take(8).toList();
   }
 }

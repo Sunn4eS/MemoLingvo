@@ -7,6 +7,10 @@ import 'package:memo_lingvo/features/games/data/repositories/game_repository.dar
 import 'package:memo_lingvo/features/games/presentation/screens/word_duel_screen.dart';
 import 'package:memo_lingvo/features/games/presentation/screens/sprint_pairs_screen.dart';
 import 'package:memo_lingvo/features/games/presentation/widgets/leaderboard_widget.dart';
+import 'package:memo_lingvo/core/database/app_database.dart' show DeckWithCount;
+import 'package:memo_lingvo/features/profile/logic/profile_cubit.dart';
+
+enum GameType { wordDuel, sprintPairs }
 
 class GamesMenuScreen extends StatelessWidget {
   const GamesMenuScreen({super.key});
@@ -17,7 +21,8 @@ class GamesMenuScreen extends StatelessWidget {
     if (email == null) return const Center(child: Text('Вы не авторизованы'));
 
     return BlocProvider(
-      create: (_) => GamesMenuCubit(context.read<GameRepository>())..loadStats(email),
+      create: (_) =>
+          GamesMenuCubit(context.read<GameRepository>())..loadStats(email),
       child: BlocBuilder<GamesMenuCubit, GamesMenuState>(
         builder: (context, state) {
           return Scaffold(
@@ -39,19 +44,14 @@ class GamesMenuScreen extends StatelessWidget {
                         title: 'Словесная дуэль',
                         icon: Icons.abc,
                         color: Colors.deepPurple,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const WordDuelScreen()),
-                        ),
+                        onTap: () => _startGame(context, GameType.wordDuel),
                       ),
                       _GameCard(
                         title: 'Спринт-пары',
                         icon: Icons.compare_arrows,
                         color: Colors.teal,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const SprintPairsScreen()),
-                        ),
+                        onTap: () =>
+                            _startGame(context, GameType.sprintPairs),
                       ),
                     ],
                   ),
@@ -66,13 +66,71 @@ class GamesMenuScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _startGame(BuildContext context, GameType type) async {
+    final repo = context.read<GameRepository>();
+    final email = FirebaseAuth.instance.currentUser!.email!;
+    final serverUserId = await repo.database.getServerUserId(email);
+    if (serverUserId == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Профиль не найден')));
+      }
+      return;
+    }
+    // Получаем список колод пользователя
+    final decks = await repo.getDecksForUser(serverUserId);
+    if (decks.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('У вас нет колод')));
+      }
+      return;
+    }
+    // Диалог выбора колоды
+    final selectedDeck = await showDialog<DeckWithCount>(
+      context: context,
+      builder: (dialogContext) => SimpleDialog(
+        title: const Text('Выберите колоду'),
+        children: decks
+            .map((d) => SimpleDialogOption(
+                  onPressed: () => Navigator.pop(dialogContext, d),
+                  child:
+                      Text('${d.deck.title} (карточек: ${d.cardCount})'),
+                ))
+            .toList(),
+      ),
+    );
+    if (selectedDeck == null) return;
+
+    // Запускаем экран игры
+    Widget gameScreen;
+    if (type == GameType.wordDuel) {
+      gameScreen = WordDuelScreen(deckId: selectedDeck.deck.id);
+    } else {
+      gameScreen = SprintPairsScreen(deckId: selectedDeck.deck.id);
+    }
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => gameScreen),
+    );
+    // После возврата (result может быть true, если игра завершена)
+    if (result == true && context.mounted) {
+      // Обновляем статистику меню
+      context.read<GamesMenuCubit>().loadStats(email);
+      // Обновляем профиль (рейтинг)
+      context.read<ProfileCubit>().loadProfile();
+    }
+  }
+
   Widget _buildRankCard(UserRank rank) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(rank.rankName, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(rank.rankName,
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             LinearProgressIndicator(value: rank.progress),
             const SizedBox(height: 4),
@@ -114,7 +172,8 @@ class _GameCard extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ],
           ),

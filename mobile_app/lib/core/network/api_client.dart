@@ -184,28 +184,26 @@ class ApiClient {
     }
   }
 
-  /// Получить таблицу лидеров.
-  /// Эндпоинт: GET /Game/Leaderboard
-  /// Ожидаемый ответ: список объектов LeaderboardEntry (userId, email, experience, rank)
   Future<List<Map<String, dynamic>>> getLeaderboard() async {
     try {
-      final response = await _dio.get('/Game/Leaderboard');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data as List<dynamic>;
-        return data.map((e) => Map<String, dynamic>.from(e)).toList();
+      final response = await _dio.get(
+        '/Game/Leaderboard',
+        options: Options(
+          sendTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
+      if (response.statusCode == 200 && response.data is List) {
+        return (response.data as List)
+            .map((e) => Map<String, dynamic>.from(e))
+            .toList();
       }
-      return [];
     } catch (e) {
       _logError('Get Leaderboard', e);
-      return [];
     }
+    return []; // никогда не падаем
   }
 
-  /// Получить профиль «бота» — усреднённые показатели реального игрока
-  /// для балансировки соперников в одиночных мини‑играх.
-  /// Эндпоинт: GET /Game/BotProfile?userId={userId}
-  /// Возвращает словарь, например: { 'averageSpeed': 4.2, 'accuracy': 85 }
   Future<Map<String, dynamic>> getBotProfile(String userId) async {
     try {
       final response = await _dio.get(

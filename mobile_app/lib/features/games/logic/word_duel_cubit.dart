@@ -7,12 +7,12 @@ class WordDuelState {
   final List<String> shuffledLetters;
   final List<String> playerAnswer;
   final String targetWord;
-  final String promptWord; // русское слово
+  final String promptWord;           // русское слово
   final int playerScore;
   final int round;
   final int totalRounds;
   final bool isFinished;
-  final int timeLeft;
+  final int totalTimeLeft;           // общее время на игру (сек)
 
   const WordDuelState({
     required this.shuffledLetters,
@@ -23,20 +23,21 @@ class WordDuelState {
     required this.round,
     required this.totalRounds,
     required this.isFinished,
-    required this.timeLeft,
+    required this.totalTimeLeft,
   });
 
-  factory WordDuelState.initial(int totalRounds) => WordDuelState(
-    shuffledLetters: [],
-    playerAnswer: [],
-    targetWord: '',
-    promptWord: '',
-    playerScore: 0,
-    round: 0,
-    totalRounds: totalRounds,
-    isFinished: false,
-    timeLeft: 15,
-  );
+  factory WordDuelState.initial(int totalRounds, int totalTime) =>
+      WordDuelState(
+        shuffledLetters: [],
+        playerAnswer: [],
+        targetWord: '',
+        promptWord: '',
+        playerScore: 0,
+        round: 0,
+        totalRounds: totalRounds,
+        isFinished: false,
+        totalTimeLeft: totalTime,
+      );
 
   WordDuelState copyWith({
     List<String>? shuffledLetters,
@@ -47,7 +48,7 @@ class WordDuelState {
     int? round,
     int? totalRounds,
     bool? isFinished,
-    int? timeLeft,
+    int? totalTimeLeft,
   }) {
     return WordDuelState(
       shuffledLetters: shuffledLetters ?? this.shuffledLetters,
@@ -58,7 +59,7 @@ class WordDuelState {
       round: round ?? this.round,
       totalRounds: totalRounds ?? this.totalRounds,
       isFinished: isFinished ?? this.isFinished,
-      timeLeft: timeLeft ?? this.timeLeft,
+      totalTimeLeft: totalTimeLeft ?? this.totalTimeLeft,
     );
   }
 }
@@ -66,17 +67,33 @@ class WordDuelState {
 class WordDuelCubit extends Cubit<WordDuelState> {
   final GameRepository _repository;
   final String email;
-  Timer? _roundTimer;
+  Timer? _gameTimer;
   final List<db.Card> _cards;
   DateTime? _sessionStartTime;
+  static const int totalGameTime = 90; // секунд на всю игру
 
   WordDuelCubit(this._repository, this.email, this._cards)
-    : super(WordDuelState.initial(_cards.length > 5 ? 5 : _cards.length)) {
+      : super(WordDuelState.initial(
+            _cards.length > 5 ? 5 : _cards.length, totalGameTime)) {
     _sessionStartTime = DateTime.now();
+    _startGameTimer();
     _startRound();
   }
 
+  void _startGameTimer() {
+    _gameTimer?.cancel();
+    _gameTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (state.isFinished) return;
+      if (state.totalTimeLeft <= 1) {
+        _finishGame();
+      } else {
+        emit(state.copyWith(totalTimeLeft: state.totalTimeLeft - 1));
+      }
+    });
+  }
+
   void _startRound() {
+    if (state.isFinished) return;
     if (state.round >= state.totalRounds) {
       _finishGame();
       return;
@@ -84,37 +101,21 @@ class WordDuelCubit extends Cubit<WordDuelState> {
     final card = _cards[state.round % _cards.length];
     final letters = card.word.split('')..shuffle();
     if (letters.join() == card.word) letters.shuffle();
-    emit(
-      state.copyWith(
-        shuffledLetters: letters,
-        targetWord: card.word,
-        promptWord: card.translation,
-        playerAnswer: [],
-        timeLeft: 15,
-      ),
-    );
-    _startRoundTimer();
-  }
-
-  void _startRoundTimer() {
-    _roundTimer?.cancel();
-    _roundTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (state.timeLeft <= 1) {
-        _onTimeUp();
-      } else {
-        emit(state.copyWith(timeLeft: state.timeLeft - 1));
-      }
-    });
+    emit(state.copyWith(
+      shuffledLetters: letters,
+      targetWord: card.word,
+      promptWord: card.translation,
+      playerAnswer: [],
+    ));
   }
 
   void addLetter(String letter) {
     if (state.shuffledLetters.contains(letter)) {
-      final newShuffled = List<String>.from(state.shuffledLetters)
-        ..remove(letter);
+      final newShuffled =
+          List<String>.from(state.shuffledLetters)..remove(letter);
       final newAnswer = List<String>.from(state.playerAnswer)..add(letter);
-      emit(
-        state.copyWith(playerAnswer: newAnswer, shuffledLetters: newShuffled),
-      );
+      emit(state.copyWith(
+          playerAnswer: newAnswer, shuffledLetters: newShuffled));
       if (newAnswer.join() == state.targetWord) {
         _playerSolved();
       }
@@ -125,29 +126,31 @@ class WordDuelCubit extends Cubit<WordDuelState> {
     final letter = state.playerAnswer[index];
     final newAnswer = List<String>.from(state.playerAnswer)..removeAt(index);
     final newShuffled = List<String>.from(state.shuffledLetters)..add(letter);
-    emit(state.copyWith(playerAnswer: newAnswer, shuffledLetters: newShuffled));
+    emit(state.copyWith(
+        playerAnswer: newAnswer, shuffledLetters: newShuffled));
   }
 
-  void _playerSolved() {
-    _roundTimer?.cancel();
-    // Очки за раунд: базовая награда 50 + по 10 за каждую оставшуюся секунду
-    final roundScore = 50 + state.timeLeft * 10;
-    final newScore = state.playerScore + roundScore;
-    emit(state.copyWith(playerScore: newScore, round: state.round + 1));
-    _startRound();
-  }
-
-  void _onTimeUp() {
-    _roundTimer?.cancel();
-    // Время вышло — очков не даём, переходим к следующему раунду
+  void skipRound() {
+    if (state.isFinished) return;
+    // Пропускаем раунд без начисления очков
     emit(state.copyWith(round: state.round + 1));
     _startRound();
   }
 
+  void _playerSolved() {
+    // Очки за скорость: 50 + (оставшееся общее время в секундах)
+    final roundScore = 50 + state.totalTimeLeft;
+    emit(state.copyWith(
+      playerScore: state.playerScore + roundScore,
+      round: state.round + 1,
+    ));
+    _startRound();
+  }
+
   Future<void> _finishGame() async {
-    _roundTimer?.cancel();
+    if (state.isFinished) return;
+    _gameTimer?.cancel();
     final totalTime = DateTime.now().difference(_sessionStartTime!).inSeconds;
-    // Точность: все раунды решены правильно (грубая оценка)
     final accuracy = state.totalRounds > 0
         ? ((state.round / state.totalRounds) * 100).toInt()
         : 0;
@@ -169,7 +172,7 @@ class WordDuelCubit extends Cubit<WordDuelState> {
 
   @override
   Future<void> close() {
-    _roundTimer?.cancel();
+    _gameTimer?.cancel();
     return super.close();
   }
 }
