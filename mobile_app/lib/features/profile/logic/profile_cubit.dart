@@ -48,12 +48,11 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
-  // НОВЫЙ МЕТОД: Удаление аватарки
   Future<void> removeAvatar() async {
     final state = this.state;
     if (state is! ProfileLoaded) return;
 
-    await _repository.saveAvatarPath(null); // Затираем путь в SharedPreferences
-    await loadProfile(); // Перезагружаем интерфейс
+    await _repository.saveAvatarPath(null);
+    await loadProfile();
   }
 }

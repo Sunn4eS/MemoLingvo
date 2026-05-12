@@ -35,7 +35,7 @@ class AvatarWidget extends StatelessWidget {
       ),
       builder: (bottomSheetContext) => SafeArea(
         child: Wrap(
-          children:[
+          children: [
             const Padding(
               padding: EdgeInsets.all(16.0),
               child: Text(
@@ -62,7 +62,10 @@ class AvatarWidget extends StatelessWidget {
             if (avatarPath != null)
               ListTile(
                 leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text('Удалить фото', style: TextStyle(color: Colors.red)),
+                title: const Text(
+                  'Удалить фото',
+                  style: TextStyle(color: Colors.red),
+                ),
                 onTap: () {
                   Navigator.of(bottomSheetContext).pop();
                   context.read<ProfileCubit>().removeAvatar();
@@ -74,24 +77,27 @@ class AvatarWidget extends StatelessWidget {
     );
   }
 
-  Future<void> _pickAndUpdateAvatar(BuildContext context, ImageSource source) async {
+  Future<void> _pickAndUpdateAvatar(
+    BuildContext context,
+    ImageSource source,
+  ) async {
     final picker = ImagePicker();
     try {
       final pickedFile = await picker.pickImage(
         source: source,
-        imageQuality: 70, // Сжимаем фото, чтобы не забивать память
+        imageQuality: 70,
         maxWidth: 800,
       );
-      
+
       if (pickedFile != null && context.mounted) {
         final file = File(pickedFile.path);
         await context.read<ProfileCubit>().updateAvatar(file);
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Ошибка при выборе фото: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Ошибка при выборе фото: $e')));
       }
     }
   }

@@ -14,7 +14,7 @@ class ProfileLoading extends ProfileState {}
 class ProfileLoaded extends ProfileState {
   final UserProfile profile;
   final Map<String, int> stats;
-  final String? avatarPath; // локальный путь к файлу аватара
+  final String? avatarPath;
 
   const ProfileLoaded(this.profile, this.stats, this.avatarPath);
 

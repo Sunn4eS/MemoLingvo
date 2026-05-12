@@ -10,6 +10,7 @@ import 'package:memo_lingvo/features/auth/presentation/screens/register_screen.d
 import 'package:memo_lingvo/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:memo_lingvo/features/home/presentation/screens/main_wrapper.dart';
 import 'package:memo_lingvo/features/auth/presentation/screens/splash_screen.dart';
+
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
@@ -39,7 +40,6 @@ class _MyAppState extends State<MyApp> {
       supportedLocales: const [Locale('en'), Locale('ru')],
       initialRoute: '/',
       onGenerateRoute: (settings) {
-        // Handle named routes as before
         switch (settings.name) {
           case '/':
             return MaterialPageRoute(
@@ -54,14 +54,15 @@ class _MyAppState extends State<MyApp> {
           case '/home':
             return MaterialPageRoute(builder: (context) => MainWrapper());
           default:
-            return MaterialPageRoute(builder: (context) => Scaffold(body: Text('Unknown route')));
+            return MaterialPageRoute(
+              builder: (context) => Scaffold(body: Text('Unknown route')),
+            );
         }
       },
     );
   }
 }
 
-// Separate widget to handle authentication and redirection
 class _AuthGate extends StatelessWidget {
   final Stream<firebase_auth.User?> stream;
 
@@ -77,14 +78,12 @@ class _AuthGate extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
-          // User is logged in – ensure they are on the home screen
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.pushReplacementNamed(context, '/home');
           });
-          return Container(); // temporary placeholder
+          return Container();
         }
 
-        // User not logged in – show welcome screen
         return WelcomeScreen();
       },
     );

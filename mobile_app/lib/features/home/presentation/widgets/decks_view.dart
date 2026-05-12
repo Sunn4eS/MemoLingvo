@@ -63,13 +63,13 @@ class DecksView extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Divider(),
-            // КНОПКА ИМПОРТА
+
             TextButton.icon(
               icon: const Icon(Icons.download),
               label: const Text("Или импортировать по коду"),
               onPressed: () {
-                Navigator.pop(dialogContext); // Закрываем этот диалог
-                _showImportDialog(context); // Открываем диалог импорта
+                Navigator.pop(dialogContext);
+                _showImportDialog(context);
               },
             ),
           ],
@@ -93,7 +93,6 @@ class DecksView extends StatelessWidget {
     );
   }
 
-  // НОВЫЙ МЕТОД ДЛЯ ДИАЛОГА ИМПОРТА
   void _showImportDialog(BuildContext context) {
     final codeController = TextEditingController();
     showDialog(
@@ -158,9 +157,7 @@ class _DeckCard extends StatelessWidget {
         children: [
           InkWell(
             onTap: () {
-              // НОВАЯ ЛОГИКА ПЕРЕХОДОВ
               if (item.cardCount > 0) {
-                // Если карточки есть -> идем тренироваться
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -168,7 +165,6 @@ class _DeckCard extends StatelessWidget {
                   ),
                 );
               } else {
-                // Если колода пустая -> открываем управление колодой (чтобы добавить карточки)
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -238,7 +234,7 @@ class _DeckCard extends StatelessWidget {
                 );
               },
             ),
-            // НОВАЯ КНОПКА: Поделиться
+
             ListTile(
               leading: const Icon(Icons.share, color: Colors.blue),
               title: const Text("Поделиться колодой"),

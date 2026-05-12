@@ -42,7 +42,7 @@ class PairsBoard extends StatelessWidget {
               children: [
                 Expanded(
                   child: ListView(
-                    children: state.remainingPairs.map((pair) {
+                    children: state.shuffledLeft.map((pair) {
                       final isSelected = state.selectedLeftId == pair.cardId;
                       return GestureDetector(
                         onTap: () => cubit.selectLeft(pair.cardId),
@@ -74,7 +74,7 @@ class PairsBoard extends StatelessWidget {
                 const SizedBox(width: 16),
                 Expanded(
                   child: ListView(
-                    children: state.remainingPairs.map((pair) {
+                    children: state.shuffledRight.map((pair) {
                       final isSelected = state.selectedRightId == pair.cardId;
                       return GestureDetector(
                         onTap: () => cubit.selectRight(pair.cardId),

@@ -12,12 +12,10 @@ class GameRepository {
 
   GameRepository(this._db, this._api);
 
-  /// Публичный доступ к БД (нужен для получения serverUserId)
   AppDatabase get database => _db;
 
-  /// Сохранить результат игры локально и отправить на сервер
   Future<void> saveGameResult({
-    required String userId, // serverUserId
+    required String userId,
     required String gameType,
     required String result,
     required int score,
@@ -27,7 +25,6 @@ class GameRepository {
     final sessionId = _uuid.v4();
     final now = DateTime.now().toUtc();
 
-    // 1. Сохраняем в локальную БД
     await _db
         .into(_db.gameSessions)
         .insert(
@@ -45,17 +42,6 @@ class GameRepository {
           ),
         );
 
-    // 2. Отправляем на сервер (заглушка)
-    await _api.submitGameResult(
-      userId: userId,
-      gameType: gameType,
-      result: result,
-      score: score,
-      timeTakenSeconds: timeTakenSeconds,
-      accuracyPercent: accuracyPercent,
-    );
-
-    // 3. Обновляем опыт и ранг в локальной таблице users
     final currentUser = await (_db.select(
       _db.usersTable,
     )..where((t) => t.id.equals(userId))).getSingleOrNull();
@@ -68,9 +54,9 @@ class GameRepository {
         UsersTableCompanion(experience: Value(newExp), rank: Value(newRank)),
       );
     }
-    // отправка на сервер, если возможно
+
     try {
-      await _api.submitGameResult(
+      bool sent = await _api.submitGameResult(
         userId: userId,
         gameType: gameType,
         result: result,
@@ -78,18 +64,51 @@ class GameRepository {
         timeTakenSeconds: timeTakenSeconds,
         accuracyPercent: accuracyPercent,
       );
-    } catch (_) {}
+
+      if (sent) {
+        final leaderboard = await _api.getLeaderboard();
+        Map<String, dynamic>? serverEntry;
+        for (final entry in leaderboard) {
+          final id = entry['userId'] ?? entry['userID'] ?? entry['id'] ?? '';
+          if (id == userId) {
+            serverEntry = entry;
+            break;
+          }
+        }
+
+        if (serverEntry != null) {
+          final serverExp = (serverEntry['experience'] as num?)?.toInt() ?? 0;
+          final serverRank = (serverEntry['rank'] as num?)?.toInt() ?? 0;
+          await (_db.update(
+            _db.usersTable,
+          )..where((t) => t.id.equals(userId))).write(
+            UsersTableCompanion(
+              experience: Value(serverExp),
+              rank: Value(serverRank),
+            ),
+          );
+          print('✅ Опыт синхронизирован с сервером: $serverExp XP');
+        } else {
+          print(
+            '⚠️ Не удалось найти себя в лидерборде, опыт может расходиться',
+          );
+        }
+      } else {
+        print('⚠️ Сервер не принял результат, опыт остался локальным');
+      }
+    } catch (e) {
+      print('❌ Ошибка синхронизации с сервером: $e');
+    }
   }
 
   int _calculateRank(int exp) {
-    if (exp < 1000) return 0;
-    if (exp < 3000) return 1;
-    if (exp < 6000) return 2;
-    if (exp < 10000) return 3;
+    if (exp < 4000) return 0;
+    if (exp < 8000) return 1;
+    if (exp < 12000) return 2;
+    if (exp < 16000) return 3;
     return 4;
   }
 
-  /// Поток истории игр пользователя
   Stream<List<GameSession>> watchSessions(String userId) {
     final query = _db.select(_db.gameSessions)
       ..where((t) => t.userId.equals(userId))
@@ -99,7 +118,6 @@ class GameRepository {
     return query.watch();
   }
 
-  /// Таблица лидеров (с сервера)
   Future<List<UserRank>> getLeaderboard() async {
     try {
       final serverData = await _api.getLeaderboard();
@@ -123,7 +141,6 @@ class GameRepository {
     return getLocalLeaderboard();
   }
 
-  /// Ранг текущего пользователя (исправленная версия)
   Future<UserRank?> getUserRank(String serverUserId) async {
     final user = await (_db.select(
       _db.usersTable,
@@ -138,20 +155,10 @@ class GameRepository {
     );
   }
 
-  /// Получить профиль бота с сервера
-  Future<Map<String, dynamic>> getBotProfile(String userId) async {
-    final profile = await _api.getBotProfile(userId);
-    return {
-      'averageSpeed': (profile['averageSpeed'] as num?)?.toDouble() ?? 4.0,
-      'accuracy': (profile['accuracy'] as num?)?.toInt() ?? 80,
-    };
-  }
-
   Future<List<DeckWithCount>> getDecksForUser(String userId) async {
     return _db.watchDecksWithCardCount(userId).first;
   }
 
-  /// Локальная таблица лидеров – все пользователи, упорядоченные по опыту
   Future<List<UserRank>> getLocalLeaderboard() async {
     final users =
         await (_db.select(_db.usersTable)

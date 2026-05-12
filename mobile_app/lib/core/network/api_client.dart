@@ -204,22 +204,15 @@ class ApiClient {
     return []; // никогда не падаем
   }
 
-  Future<Map<String, dynamic>> getBotProfile(String userId) async {
+  Future<Map<String, dynamic>?> getUserProfile(String userId) async {
     try {
-      final response = await _dio.get(
-        '/Game/BotProfile',
-        queryParameters: {'userId': userId},
-      );
-
-      if (response.statusCode == 200 && response.data != null) {
-        return Map<String, dynamic>.from(response.data);
+      final response = await _dio.get('/User/$userId');
+      if (response.statusCode == 200) {
+        return response.data;
       }
-      // Значения по умолчанию, если сервер вернул ошибку или пустоту
-      return {'averageSpeed': 4.0, 'accuracy': 80};
     } catch (e) {
-      _logError('Get Bot Profile', e);
-      // Безопасные значения по умолчанию, чтобы игра не упала
-      return {'averageSpeed': 4.0, 'accuracy': 80};
+      _logError('GetUserProfile', e);
     }
+    return null;
   }
 }

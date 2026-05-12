@@ -4,9 +4,12 @@ part 'card.freezed.dart';
 part 'card.g.dart';
 
 enum LearningStatus {
-  @JsonValue(0) newCard,    // Новая (еще не свайпали)
-  @JsonValue(1) learning,   // В процессе (свайпнули влево)
-  @JsonValue(2) mastered    // Выучена (свайпнули вправо)
+  @JsonValue(0)
+  newCard,
+  @JsonValue(1)
+  learning,
+  @JsonValue(2)
+  mastered,
 }
 
 @freezed
@@ -15,13 +18,11 @@ sealed class Card with _$Card {
     required String id,
     required String deckId,
 
-    //Front
     required String word,
     String? transcription,
 
-    //Back
     required String translation,
-    String? meaning, 
+    String? meaning,
     List<String>? examples,
 
     @Default(LearningStatus.newCard) LearningStatus status,
@@ -29,6 +30,5 @@ sealed class Card with _$Card {
     DateTime? lastSeen,
   }) = _Card;
 
-  factory Card.fromJson(Map<String, dynamic> json) =>
-      _$CardFromJson(json);
+  factory Card.fromJson(Map<String, dynamic> json) => _$CardFromJson(json);
 }

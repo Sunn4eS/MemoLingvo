@@ -7,12 +7,12 @@ class WordDuelState {
   final List<String> shuffledLetters;
   final List<String> playerAnswer;
   final String targetWord;
-  final String promptWord;           // русское слово
+  final String promptWord;
   final int playerScore;
   final int round;
   final int totalRounds;
   final bool isFinished;
-  final int totalTimeLeft;           // общее время на игру (сек)
+  final int totalTimeLeft;
 
   const WordDuelState({
     required this.shuffledLetters,
@@ -70,11 +70,15 @@ class WordDuelCubit extends Cubit<WordDuelState> {
   Timer? _gameTimer;
   final List<db.Card> _cards;
   DateTime? _sessionStartTime;
-  static const int totalGameTime = 90; // секунд на всю игру
+  static const int totalGameTime = 90;
 
   WordDuelCubit(this._repository, this.email, this._cards)
-      : super(WordDuelState.initial(
-            _cards.length > 5 ? 5 : _cards.length, totalGameTime)) {
+    : super(
+        WordDuelState.initial(
+          _cards.length > 5 ? 5 : _cards.length,
+          totalGameTime,
+        ),
+      ) {
     _sessionStartTime = DateTime.now();
     _startGameTimer();
     _startRound();
@@ -101,21 +105,24 @@ class WordDuelCubit extends Cubit<WordDuelState> {
     final card = _cards[state.round % _cards.length];
     final letters = card.word.split('')..shuffle();
     if (letters.join() == card.word) letters.shuffle();
-    emit(state.copyWith(
-      shuffledLetters: letters,
-      targetWord: card.word,
-      promptWord: card.translation,
-      playerAnswer: [],
-    ));
+    emit(
+      state.copyWith(
+        shuffledLetters: letters,
+        targetWord: card.word,
+        promptWord: card.translation,
+        playerAnswer: [],
+      ),
+    );
   }
 
   void addLetter(String letter) {
     if (state.shuffledLetters.contains(letter)) {
-      final newShuffled =
-          List<String>.from(state.shuffledLetters)..remove(letter);
+      final newShuffled = List<String>.from(state.shuffledLetters)
+        ..remove(letter);
       final newAnswer = List<String>.from(state.playerAnswer)..add(letter);
-      emit(state.copyWith(
-          playerAnswer: newAnswer, shuffledLetters: newShuffled));
+      emit(
+        state.copyWith(playerAnswer: newAnswer, shuffledLetters: newShuffled),
+      );
       if (newAnswer.join() == state.targetWord) {
         _playerSolved();
       }
@@ -126,24 +133,24 @@ class WordDuelCubit extends Cubit<WordDuelState> {
     final letter = state.playerAnswer[index];
     final newAnswer = List<String>.from(state.playerAnswer)..removeAt(index);
     final newShuffled = List<String>.from(state.shuffledLetters)..add(letter);
-    emit(state.copyWith(
-        playerAnswer: newAnswer, shuffledLetters: newShuffled));
+    emit(state.copyWith(playerAnswer: newAnswer, shuffledLetters: newShuffled));
   }
 
   void skipRound() {
     if (state.isFinished) return;
-    // Пропускаем раунд без начисления очков
+
     emit(state.copyWith(round: state.round + 1));
     _startRound();
   }
 
   void _playerSolved() {
-    // Очки за скорость: 50 + (оставшееся общее время в секундах)
     final roundScore = 50 + state.totalTimeLeft;
-    emit(state.copyWith(
-      playerScore: state.playerScore + roundScore,
-      round: state.round + 1,
-    ));
+    emit(
+      state.copyWith(
+        playerScore: state.playerScore + roundScore,
+        round: state.round + 1,
+      ),
+    );
     _startRound();
   }
 

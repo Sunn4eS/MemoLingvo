@@ -2,7 +2,7 @@ class UserRank {
   final String userId;
   final String email;
   final int experience;
-  final int rank; // 0..n
+  final int rank;
 
   const UserRank({
     required this.userId,
@@ -13,14 +13,19 @@ class UserRank {
 
   String get rankName {
     switch (rank) {
-      case 0: return 'Новичок';
-      case 1: return 'Любитель';
-      case 2: return 'Знаток';
-      case 3: return 'Мастер';
-      default: return 'Легенда';
+      case 0:
+        return 'Новичок';
+      case 1:
+        return 'Любитель';
+      case 2:
+        return 'Знаток';
+      case 3:
+        return 'Мастер';
+      default:
+        return 'Легенда';
     }
   }
 
-  int get experienceToNextRank => (rank + 1) * 1000; // пример
+  int get experienceToNextRank => (rank + 1) * 4000;
   double get progress => experience / experienceToNextRank;
 }

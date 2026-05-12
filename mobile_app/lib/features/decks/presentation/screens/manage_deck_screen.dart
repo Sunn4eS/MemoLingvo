@@ -71,7 +71,7 @@ class ManageDeckScreen extends StatelessWidget {
                                 MaterialPageRoute(
                                   builder: (_) => AddCardScreen(
                                     deckId: deck.id,
-                                    cardToEdit: card, // <-- Передаем карточку!
+                                    cardToEdit: card,
                                   ),
                                 ),
                               );

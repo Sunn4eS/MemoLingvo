@@ -36,13 +36,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           state.whenOrNull(
-            // ДОБАВЛЯЕМ ПЕРЕХОД ПРИ УСПЕШНОЙ РЕГИСТРАЦИИ
             authenticated: (user) {
-              Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil('/home', (route) => false);
             },
-            error: (msg) => ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(msg)),
-            ),
+            error: (msg) => ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(msg))),
           );
         },
         builder: (context, state) {

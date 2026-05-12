@@ -50,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
                     label: const Text('Словарь выученных слов'),
                   ),
                   const Divider(height: 32),
-                  // Игровой блок
+
                   _GameStatsBlock(userId: profile.id),
                   const SizedBox(height: 16),
                   const LeaderboardWidget(),

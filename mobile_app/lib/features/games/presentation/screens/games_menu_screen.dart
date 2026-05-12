@@ -50,8 +50,7 @@ class GamesMenuScreen extends StatelessWidget {
                         title: 'Спринт-пары',
                         icon: Icons.compare_arrows,
                         color: Colors.teal,
-                        onTap: () =>
-                            _startGame(context, GameType.sprintPairs),
+                        onTap: () => _startGame(context, GameType.sprintPairs),
                       ),
                     ],
                   ),
@@ -72,37 +71,39 @@ class GamesMenuScreen extends StatelessWidget {
     final serverUserId = await repo.database.getServerUserId(email);
     if (serverUserId == null) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Профиль не найден')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Профиль не найден')));
       }
       return;
     }
-    // Получаем список колод пользователя
+
     final decks = await repo.getDecksForUser(serverUserId);
     if (decks.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('У вас нет колод')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('У вас нет колод')));
       }
       return;
     }
-    // Диалог выбора колоды
+
     final selectedDeck = await showDialog<DeckWithCount>(
       context: context,
       builder: (dialogContext) => SimpleDialog(
         title: const Text('Выберите колоду'),
         children: decks
-            .map((d) => SimpleDialogOption(
-                  onPressed: () => Navigator.pop(dialogContext, d),
-                  child:
-                      Text('${d.deck.title} (карточек: ${d.cardCount})'),
-                ))
+            .map(
+              (d) => SimpleDialogOption(
+                onPressed: () => Navigator.pop(dialogContext, d),
+                child: Text('${d.deck.title} (карточек: ${d.cardCount})'),
+              ),
+            )
             .toList(),
       ),
     );
     if (selectedDeck == null) return;
 
-    // Запускаем экран игры
     Widget gameScreen;
     if (type == GameType.wordDuel) {
       gameScreen = WordDuelScreen(deckId: selectedDeck.deck.id);
@@ -113,11 +114,10 @@ class GamesMenuScreen extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (_) => gameScreen),
     );
-    // После возврата (result может быть true, если игра завершена)
+
     if (result == true && context.mounted) {
-      // Обновляем статистику меню
       context.read<GamesMenuCubit>().loadStats(email);
-      // Обновляем профиль (рейтинг)
+
       context.read<ProfileCubit>().loadProfile();
     }
   }
@@ -128,9 +128,10 @@ class GamesMenuScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(rank.rankName,
-                style:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              rank.rankName,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             LinearProgressIndicator(value: rank.progress),
             const SizedBox(height: 4),
@@ -172,8 +173,10 @@ class _GameCard extends StatelessWidget {
               Text(
                 title,
                 textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ],
           ),

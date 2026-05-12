@@ -1,5 +1,3 @@
-// lib/features/profile/domain/entities/user_profile.dart
-
 import 'package:equatable/equatable.dart';
 
 class UserProfile extends Equatable {
@@ -7,7 +5,7 @@ class UserProfile extends Equatable {
   final String email;
   final DateTime createdAt;
   final String? avatarUrl;
-  final String? displayName;  // опционально, если добавите на сервер
+  final String? displayName;
 
   const UserProfile({
     required this.id,

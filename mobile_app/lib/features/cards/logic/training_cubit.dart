@@ -32,52 +32,45 @@ class TrainingCubit extends Cubit<TrainingState> {
   final CardRepository _repository;
   final String deckId;
 
-  TrainingCubit(this._repository, this.deckId) : super(TrainingState(cards: [])) {
+  TrainingCubit(this._repository, this.deckId)
+    : super(TrainingState(cards: [])) {
     _init();
   }
 
   void _init() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user?.email == null) return;
-    
+
     final serverId = await _repository.getServerUserId(user!.email!);
     if (serverId == null) return;
 
-    // ЗАГРУЖАЕМ ОДИН РАЗ (Future)
     final cards = await _repository.getDueCards(deckId, serverId);
-    
-    emit(TrainingState(
-      cards: cards, 
-      isFinished: cards.isEmpty,
-      currentIndex: 0
-    ));
+
+    emit(
+      TrainingState(cards: cards, isFinished: cards.isEmpty, currentIndex: 0),
+    );
   }
 
   void handleSwipe(int index, CardSwiperDirection direction) async {
     if (state.cards.isEmpty || index >= state.cards.length) return;
-    
+
     final card = state.cards[index];
     final user = FirebaseAuth.instance.currentUser;
     final serverId = await _repository.getServerUserId(user!.email!);
 
     if (direction == CardSwiperDirection.right) {
-      // ЗНАЮ: Обновляем БД в фоне. 
-      // В UI ничего не меняем, CardSwiper сам перейдет к следующей карте.
       if (index >= state.cards.length - 1) {
-      emit(state.copyWith(isFinished: true));
-    }
+        emit(state.copyWith(isFinished: true));
+      }
       await _repository.updateCardProgress(card.id, serverId!, 5);
     } else {
-      // НЕ ЗНАЮ: Обновляем БД (сброс прогресса)
       await _repository.updateCardProgress(card.id, serverId!, 1);
 
-      // Чтобы карта появилась снова в КОНЦЕ этой же сессии:
       final updatedCards = List<Card>.from(state.cards);
-      updatedCards.add(card); // Добавляем копию в конец списка
+      updatedCards.add(card);
       emit(state.copyWith(cards: updatedCards));
     }
 
-    // Проверяем, была ли это последняя карта
     if (index >= state.cards.length - 1) {
       emit(state.copyWith(isFinished: true));
     }

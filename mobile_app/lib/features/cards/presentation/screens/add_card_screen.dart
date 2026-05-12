@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 import 'package:memo_lingvo/features/cards/data/repositories/card_repository.dart';
 import 'package:memo_lingvo/core/database/app_database.dart' as db;
-import 'package:memo_lingvo/core/network/dictionary_api.dart'; // <-- Импорт API
+import 'package:memo_lingvo/core/network/dictionary_api.dart';
 
 class AddCardScreen extends StatefulWidget {
   final String deckId;
@@ -20,9 +20,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
   final _translationController = TextEditingController();
   final _transcriptionController = TextEditingController();
   final _meaningController = TextEditingController();
-  final List<TextEditingController> _examplecontrollers =[];
-  
-  bool _isLoadingFromApi = false; // Флаг загрузки
+  final List<TextEditingController> _examplecontrollers = [];
+
+  bool _isLoadingFromApi = false;
 
   @override
   void initState() {
@@ -53,7 +53,6 @@ class _AddCardScreenState extends State<AddCardScreen> {
     });
   }
 
-  // МЕТОД АВТОЗАПОЛНЕНИЯ ИЗ API
   Future<void> _fetchWordData() async {
     final word = _wordController.text.trim();
     if (word.isEmpty) {
@@ -70,24 +69,25 @@ class _AddCardScreenState extends State<AddCardScreen> {
 
     if (data != null) {
       setState(() {
-        // Достаем транскрипцию
         if (data['phonetic'] != null) {
           _transcriptionController.text = data['phonetic'].replaceAll('/', '');
         } else if (data['phonetics'] != null && data['phonetics'].isNotEmpty) {
-          _transcriptionController.text = data['phonetics'][0]['text']?.replaceAll('/', '') ?? '';
+          _transcriptionController.text =
+              data['phonetics'][0]['text']?.replaceAll('/', '') ?? '';
         }
 
-        // Достаем значение и пример
         if (data['meanings'] != null && data['meanings'].isNotEmpty) {
           final firstMeaning = data['meanings'][0];
-          if (firstMeaning['definitions'] != null && firstMeaning['definitions'].isNotEmpty) {
+          if (firstMeaning['definitions'] != null &&
+              firstMeaning['definitions'].isNotEmpty) {
             final def = firstMeaning['definitions'][0];
             _meaningController.text = def['definition'] ?? '';
 
-            // Если есть пример, добавляем его
             if (def['example'] != null) {
               if (_examplecontrollers.isEmpty) {
-                _examplecontrollers.add(TextEditingController(text: def['example']));
+                _examplecontrollers.add(
+                  TextEditingController(text: def['example']),
+                );
               } else {
                 _examplecontrollers[0].text = def['example'];
               }
@@ -96,11 +96,18 @@ class _AddCardScreenState extends State<AddCardScreen> {
         }
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Данные успешно загружены!'), backgroundColor: Colors.green),
+        const SnackBar(
+          content: Text('Данные успешно загружены!'),
+          backgroundColor: Colors.green,
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Слово не найдено (API поддерживает только англ. слова)')),
+        const SnackBar(
+          content: Text(
+            'Слово не найдено (API поддерживает только англ. слова)',
+          ),
+        ),
       );
     }
   }
@@ -124,7 +131,9 @@ class _AddCardScreenState extends State<AddCardScreen> {
           .where((text) => text.isNotEmpty)
           .toList();
       final rep = context.read<CardRepository>();
-      final transcription = _transcriptionController.text.trim().isEmpty ? null : _transcriptionController.text.trim();
+      final transcription = _transcriptionController.text.trim().isEmpty
+          ? null
+          : _transcriptionController.text.trim();
       if (widget.cardToEdit != null) {
         await rep.updateCard(
           id: widget.cardToEdit!.id,
@@ -154,7 +163,7 @@ class _AddCardScreenState extends State<AddCardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.add_card_screen__new_card),
-        actions:[
+        actions: [
           IconButton(onPressed: _saveCard, icon: const Icon(Icons.check)),
         ],
       ),
@@ -162,16 +171,20 @@ class _AddCardScreenState extends State<AddCardScreen> {
         key: _formKey,
         child: ListView(
           padding: const EdgeInsets.all(16),
-          children:[
+          children: [
             _buildTextField(
               _wordController,
               l10n.add_card_screen__word,
               isRequired: true,
-              // Добавляем иконку волшебной палочки (API)
+
               suffixIcon: IconButton(
-                icon: _isLoadingFromApi 
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.auto_fix_high, color: Colors.blue),
+                icon: _isLoadingFromApi
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.auto_fix_high, color: Colors.blue),
                 tooltip: 'Заполнить из интернета (только англ)',
                 onPressed: _isLoadingFromApi ? null : _fetchWordData,
               ),
@@ -196,10 +209,13 @@ class _AddCardScreenState extends State<AddCardScreen> {
             const Divider(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children:[
+              children: [
                 Text(
                   l10n.add_card_screen__examples,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 TextButton.icon(
                   onPressed: _addExampleField,
@@ -212,14 +228,14 @@ class _AddCardScreenState extends State<AddCardScreen> {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child: Row(
-                  children:[
+                  children: [
                     Expanded(
                       child: TextField(
                         controller: entry.value,
                         decoration: InputDecoration(
                           hintText: l10n.add_card_screen__add_example_hint,
                           border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12)
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                       ),

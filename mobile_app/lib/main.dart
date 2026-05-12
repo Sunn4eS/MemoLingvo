@@ -15,7 +15,7 @@ import 'package:memo_lingvo/firebase_options.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:memo_lingvo/core/network/network_cubit.dart';
-import 'package:memo_lingvo/core/notifications/notification_service.dart'; // 
+import 'package:memo_lingvo/core/notifications/notification_service.dart';
 
 class MyApp extends StatelessWidget {
   @override
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: const[Locale('en'), Locale('ru')],
+      supportedLocales: const [Locale('en'), Locale('ru')],
       initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),
@@ -45,18 +45,11 @@ class MyApp extends StatelessWidget {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
-  // Инициализация уведомлений
-  await NotificationService().init(); 
+
+  await NotificationService().init();
 
   final database = AppDatabase();
   final prefs = await SharedPreferences.getInstance();
-  
-  runApp(
-    AppProviders(
-      child: MyApp(),
-      database: database,
-      prefs: prefs
-    ),
-  );
+
+  runApp(AppProviders(child: MyApp(), database: database, prefs: prefs));
 }

@@ -101,5 +101,3 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 }
-
-//TODO showlangugaepicker

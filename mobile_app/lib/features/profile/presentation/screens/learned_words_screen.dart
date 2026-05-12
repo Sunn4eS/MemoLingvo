@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memo_lingvo/core/database/app_database.dart' as dba;
@@ -33,12 +32,11 @@ class _LearnedWordsScreenState extends State<LearnedWordsScreen> {
   }
 
   Future<void> _loadLearnedWords() async {
-   final prefs = await SharedPreferences.getInstance();
-   
+    final prefs = await SharedPreferences.getInstance();
+
     final db = context.read<dba.AppDatabase>();
     final repo = ProfileRepository(db, prefs);
-  
-    //final api = context.read<ApiClient>();
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.email == null) return;
     final serverId = await db.getServerUserId(user.email!);
@@ -53,45 +51,43 @@ class _LearnedWordsScreenState extends State<LearnedWordsScreen> {
     });
   }
 
-void _filterItems() {
-  if (_searchQuery.trim().isEmpty) {
-    setState(() {
-      _filteredItems = List.from(_allItems);
-    });
-  } else {
-    // Настраиваем fuzzy поиск
-    final fuse = Fuzzy<({dba.Card card, dba.CardProgressData progress})>(
-      _allItems,
-      options: FuzzyOptions(
-        findAllMatches: true,
-        threshold: 0.4,
-        keys: [
-          WeightedKey(
-            name: 'word',
-            getter: (item) => item.card.word,
-            weight: 1.0,
-          ),
-          WeightedKey(
-            name: 'translation',
-            getter: (item) => item.card.translation,
-            weight: 0.8,
-          ),
-          WeightedKey(
-            name: 'meaning',
-            getter: (item) => item.card.meaning ?? '',
-            weight: 0.5,
-          ),
-        ],
-      ),
-    );
+  void _filterItems() {
+    if (_searchQuery.trim().isEmpty) {
+      setState(() {
+        _filteredItems = List.from(_allItems);
+      });
+    } else {
+      final fuse = Fuzzy<({dba.Card card, dba.CardProgressData progress})>(
+        _allItems,
+        options: FuzzyOptions(
+          findAllMatches: true,
+          threshold: 0.4,
+          keys: [
+            WeightedKey(
+              name: 'word',
+              getter: (item) => item.card.word,
+              weight: 1.0,
+            ),
+            WeightedKey(
+              name: 'translation',
+              getter: (item) => item.card.translation,
+              weight: 0.8,
+            ),
+            WeightedKey(
+              name: 'meaning',
+              getter: (item) => item.card.meaning ?? '',
+              weight: 0.5,
+            ),
+          ],
+        ),
+      );
 
-    final result = fuse.search(_searchQuery);
-    setState(() {
-      // Извлекаем сами объекты из результатов поиска
-      _filteredItems = result.map((r) => r.item).toList();
-    });
+      final result = fuse.search(_searchQuery);
+      setState(() {
+        _filteredItems = result.map((r) => r.item).toList();
+      });
+    }
   }
-}
 
   @override
   void dispose() {
@@ -113,7 +109,9 @@ void _filterItems() {
               decoration: InputDecoration(
                 hintText: 'Поиск слова, перевода или значения...',
                 prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
                 filled: true,
                 fillColor: Colors.white,
               ),
@@ -130,25 +128,43 @@ void _filterItems() {
                 final card = item.card;
                 final progress = item.progress;
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   child: ListTile(
-                    title: Text(card.word, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    title: Text(
+                      card.word,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(card.translation),
-                        if (card.meaning != null) Text(card.meaning!, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                        if (card.meaning != null)
+                          Text(
+                            card.meaning!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
                       ],
                     ),
                     trailing: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('${progress.repetitions} повт.', style: const TextStyle(fontSize: 12)),
-                        Text('инт: ${progress.interval} дн.', style: const TextStyle(fontSize: 10)),
+                        Text(
+                          '${progress.repetitions} повт.',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        Text(
+                          'инт: ${progress.interval} дн.',
+                          style: const TextStyle(fontSize: 10),
+                        ),
                       ],
                     ),
                     onTap: () {
-                      // можно показать детали карточки
                       showDialog(
                         context: context,
                         builder: (_) => AlertDialog(
@@ -158,14 +174,19 @@ void _filterItems() {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('Перевод: ${card.translation}'),
-                              if (card.transcription != null) Text('Транскрипция: [${card.transcription}]'),
-                              if (card.meaning != null) Text('Значение: ${card.meaning}'),
-                              if (card.examples != null && card.examples!.isNotEmpty)
+                              if (card.transcription != null)
+                                Text('Транскрипция: [${card.transcription}]'),
+                              if (card.meaning != null)
+                                Text('Значение: ${card.meaning}'),
+                              if (card.examples != null &&
+                                  card.examples!.isNotEmpty)
                                 Text('Примеры: ${card.examples!.join(', ')}'),
                               const Divider(),
                               Text('Повторений: ${progress.repetitions}'),
                               Text('Интервал: ${progress.interval} дней'),
-                              Text('EF: ${progress.easinessFactor.toStringAsFixed(2)}'),
+                              Text(
+                                'EF: ${progress.easinessFactor.toStringAsFixed(2)}',
+                              ),
                             ],
                           ),
                           actions: [

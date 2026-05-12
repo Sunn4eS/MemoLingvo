@@ -58,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Password Field
                 ListenableBuilder(
                   listenable: _passwordController,
                   builder: (context, _) => TextField(
