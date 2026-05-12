@@ -6,112 +6,265 @@ import 'package:memo_lingvo/features/auth/logic/auth_state.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
+
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  late final TextEditingController _emailController;
-  late final TextEditingController _passwordController;
+class _RegisterScreenState extends State<RegisterScreen>
+    with SingleTickerProviderStateMixin {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    );
+    _animationController.forward();
   }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _animationController.dispose();
     super.dispose();
+  }
+
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    context.read<AuthCubit>().register(email, password);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.register_screen_register)),
-      body: BlocConsumer<AuthCubit, AuthState>(
-        listener: (context, state) {
-          state.whenOrNull(
-            authenticated: (user) {
-              Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil('/home', (route) => false);
-            },
-            error: (msg) => ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(msg))),
-          );
-        },
-        builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark
+                ? [const Color(0xFF1A1A2E), const Color(0xFF16213E)]
+                : [const Color(0xFF667eea), const Color(0xFF764ba2)],
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  ListenableBuilder(
-                    listenable: _emailController,
-                    builder: (context, _) {
-                      return TextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: l10n.register_screen_email,
-                          suffixIcon: _emailController.text.isNotEmpty
-                              ? IconButton(
-                                  onPressed: () => _emailController.clear(),
-                                  icon: const Icon(Icons.clear),
-                                )
-                              : null,
-                        ),
-                      );
-                    },
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Card(
+                  elevation: 12,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
                   ),
+                  color: Theme.of(context).cardTheme.color ??
+                      Theme.of(context).colorScheme.surface,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Icon(
+                            Icons.app_registration_rounded,
+                            size: 64,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            l10n.register_screen_register,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 32),
 
-                  const SizedBox(height: 20),
-                  ListenableBuilder(
-                    listenable: _passwordController,
-                    builder: (context, _) {
-                      return TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: l10n.register_screen_password,
-                          suffixIcon: _passwordController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () => _passwordController.clear(),
-                                )
-                              : null,
-                        ),
-                      );
-                    },
-                  ),
+                          // Email field
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              labelText: l10n.register_screen_email,
+                              prefixIcon: const Icon(Icons.email_outlined),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              filled: true,
+                              fillColor: Theme.of(context)
+                                  .inputDecorationTheme
+                                  .fillColor,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return l10n.add_card_screen__required_field;
+                              }
+                              if (!value.contains('@')) {
+                                return 'Введите корректный email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
 
-                  const SizedBox(height: 32),
-                  state.maybeWhen(
-                    loading: () => const CircularProgressIndicator(),
-                    orElse: () => SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          context.read<AuthCubit>().register(
-                            _emailController.text,
-                            _passwordController.text,
-                          );
-                        },
-                        child: Text(l10n.register_screen_create_account),
+                          // Password field
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: l10n.register_screen_password,
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              filled: true,
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Введите пароль';
+                              }
+                              if (value.length < 6) {
+                                return 'Пароль должен быть не менее 6 символов';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 32),
+
+                          // Register button with loading state
+                          BlocConsumer<AuthCubit, AuthState>(
+                            listener: (context, state) {
+                              state.maybeWhen(
+                                authenticated: (user) {
+                                  Navigator.of(context).pushNamedAndRemoveUntil(
+                                    '/home',
+                                    (route) => false,
+                                  );
+                                },
+                                error: (msg) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(msg),
+                                      backgroundColor: Colors.red,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                                orElse: () {},
+                              );
+                            },
+                            builder: (context, state) {
+                              // Проверяем, находится ли состояние в режиме загрузки
+                              final isLoading = state.maybeWhen(
+                                loading: () => true,
+                                orElse: () => false,
+                              );
+                              return ElevatedButton(
+                                onPressed: isLoading ? null : _register,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(40),
+                                  ),
+                                  elevation: 4,
+                                ),
+                                child: isLoading
+                                    ? const SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : Text(
+                                        l10n.register_screen_create_account,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Login link
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Уже есть аккаунт? ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(color: Colors.grey.shade600),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                    context,
+                                    '/login',
+                                  );
+                                },
+                                child: Text(
+                                  l10n.welcome_screen_login,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
