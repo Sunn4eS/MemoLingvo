@@ -26,12 +26,36 @@ class ProfileRepository {
   }
 
   // Загрузить статистику прогресса
+  // Загрузить статистику прогресса ТОЛЬКО для текущего пользователя
   Future<Map<String, int>> getLearningStats(String userId) async {
-    final totalCards = await (_db.select(_db.cards)..where((t) => t.isDeleted.equals(false))).get().then((list) => list.length);
-    final progressList = await (_db.select(_db.cardProgress)..where((t) => t.userId.equals(userId))).get();
-    int mastered = progressList.where((p) => p.repetitions >= 5).length;
-    int learning = progressList.where((p) => p.repetitions > 0 && p.repetitions < 5).length;
+    // 1. Считаем общее количество карточек конкретного пользователя
+    // Для этого объединяем (JOIN) таблицы Cards и Decks
+    final totalCardsQuery = _db.select(_db.cards).join([
+      innerJoin(_db.decks, _db.decks.id.equalsExp(_db.cards.deckId)),
+    ]);
+    
+    // Фильтруем: колода должна принадлежать юзеру, и карта не должна быть удалена
+    totalCardsQuery.where(_db.decks.userId.equals(userId));
+    totalCardsQuery.where(_db.cards.isDeleted.equals(false));
+
+    final totalCardsRows = await totalCardsQuery.get();
+    final totalCards = totalCardsRows.length;
+
+    // 2. Считаем прогресс (здесь фильтр по userId уже есть в таблице cardProgress)
+    final progressList = await (_db.select(_db.cardProgress)
+          ..where((t) => t.userId.equals(userId)))
+        .get();
+
+    // Фильтруем те, что реально существуют (не удалены)
+    // Чтобы не посчитать прогресс для удаленных карт, 
+    // проверим наличие cardId в списке totalCardsRows
+    final activeCardIds = totalCardsRows.map((r) => r.readTable(_db.cards).id).toSet();
+    final activeProgress = progressList.where((p) => activeCardIds.contains(p.cardId)).toList();
+
+    int mastered = activeProgress.where((p) => p.repetitions >= 5).length;
+    int learning = activeProgress.where((p) => p.repetitions > 0 && p.repetitions < 5).length;
     int newCards = totalCards - (mastered + learning);
+
     return {
       'total': totalCards,
       'mastered': mastered,
