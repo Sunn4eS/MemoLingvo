@@ -3,6 +3,7 @@ import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:memo_lingvo/core/database/app_database.dart';
 import 'package:memo_lingvo/features/cards/data/repositories/card_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 
 class TrainingState {
   final List<Card> cards;
@@ -14,60 +15,71 @@ class TrainingState {
     this.currentIndex = 0,
     this.isFinished = false,
   });
+  TrainingState copyWith({
+    List<Card>? cards,
+    int? currentIndex,
+    bool? isFinished,
+  }) {
+    return TrainingState(
+      cards: cards ?? this.cards,
+      currentIndex: currentIndex ?? this.currentIndex,
+      isFinished: isFinished ?? this.isFinished,
+    );
+  }
 }
 
 class TrainingCubit extends Cubit<TrainingState> {
   final CardRepository _repository;
   final String deckId;
 
-  TrainingCubit(this._repository, this.deckId)
-    : super(TrainingState(cards:[])) {
-    _loadCards();
+  TrainingCubit(this._repository, this.deckId) : super(TrainingState(cards: [])) {
+    _init();
   }
 
-  void _loadCards() async {
-    // Берем карточки из базы
-    final cards = await _repository.watchCards(deckId).first;
-    emit(TrainingState(cards: cards));
+  void _init() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user?.email == null) return;
+    
+    final serverId = await _repository.getServerUserId(user!.email!);
+    if (serverId == null) return;
+
+    // ЗАГРУЖАЕМ ОДИН РАЗ (Future)
+    final cards = await _repository.getDueCards(deckId, serverId);
+    
+    emit(TrainingState(
+      cards: cards, 
+      isFinished: cards.isEmpty,
+      currentIndex: 0
+    ));
   }
 
   void handleSwipe(int index, CardSwiperDirection direction) async {
-    if (state.cards.isEmpty) return;
+    if (state.cards.isEmpty || index >= state.cards.length) return;
     
     final card = state.cards[index];
-    final firebaseUser = FirebaseAuth.instance.currentUser;
-    
-    if (firebaseUser == null || firebaseUser.email == null) {
-      print("Ошибка: Пользователь не авторизован!");
-      return;
+    final user = FirebaseAuth.instance.currentUser;
+    final serverId = await _repository.getServerUserId(user!.email!);
+
+    if (direction == CardSwiperDirection.right) {
+      // ЗНАЮ: Обновляем БД в фоне. 
+      // В UI ничего не меняем, CardSwiper сам перейдет к следующей карте.
+      if (index >= state.cards.length - 1) {
+      emit(state.copyWith(isFinished: true));
     }
-
-    // Качество изучения: 5 для свайпа вправо (хорошо), 1 для влево (плохо)
-    int quality = (direction == CardSwiperDirection.right) ? 5 : 1;
-    final serverId = await _repository.getServerUserId(firebaseUser.email!);
-    
-    if (serverId != null) {
-      // Сохраняем прогресс в БД
-      _repository.updateCardProgress(card.id, serverId, quality);
-    }
-
-    // Создаем изменяемую копию списка
-    List<Card> updatedCards = List.from(state.cards);
-
-    // Если карточка изучена плохо (свайп влево) - добавляем ее в конец списка
-    if (direction == CardSwiperDirection.left) {
-      updatedCards.add(card);
-    }
-
-    // Проверяем, не закончились ли карточки с учетом возможного пополнения
-    if (index >= updatedCards.length - 1) {
-      emit(TrainingState(cards: updatedCards, isFinished: true));
+      await _repository.updateCardProgress(card.id, serverId!, 5);
     } else {
-      emit(TrainingState(
-        cards: updatedCards, 
-        currentIndex: index + 1, 
-        isFinished: false
-      ));
+      // НЕ ЗНАЮ: Обновляем БД (сброс прогресса)
+      await _repository.updateCardProgress(card.id, serverId!, 1);
+
+      // Чтобы карта появилась снова в КОНЦЕ этой же сессии:
+      final updatedCards = List<Card>.from(state.cards);
+      updatedCards.add(card); // Добавляем копию в конец списка
+      emit(state.copyWith(cards: updatedCards));
+    }
+
+    // Проверяем, была ли это последняя карта
+    if (index >= state.cards.length - 1) {
+      emit(state.copyWith(isFinished: true));
     }
   }
 }

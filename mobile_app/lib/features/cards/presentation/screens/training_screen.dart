@@ -34,87 +34,87 @@ class _TrainingScreenContent extends StatelessWidget {
       body: BlocBuilder<TrainingCubit, TrainingState>(
         builder: (context, state) {
           if (state.cards.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+  return Center(
+    child: Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.auto_awesome, size: 80, color: Colors.amber),
+          const SizedBox(height: 16),
+          const Text(
+            "Все карточки в этой колоде выучены!",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            "Возвращайтесь позже, когда придет время для повторения.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Назад к колодам"),
+          )
+        ],
+      ),
+    ),
+  );
+}
           if (state.isFinished) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children:[
+                children: [
                   const Icon(Icons.emoji_events, size: 80, color: Colors.orange),
                   const SizedBox(height: 16),
                   Text(
                     l10n.trainig_screen__training_done,
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Назад к колодам"),
+                  )
                 ],
               ),
             );
           }
           
           return SafeArea(
-            child: Stack(
-              children:[
-                // Визуальный фон для подсказки при свайпе
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Row(
-                    children:[
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.15),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(25),
-                              bottomLeft: Radius.circular(25),
-                            ),
-                          ),
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.all(32),
-                          child: const Icon(Icons.refresh, color: Colors.red, size: 48),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.15),
-                            borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(25),
-                              bottomRight: Radius.circular(25),
-                            ),
-                          ),
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.all(32),
-                          child: const Icon(Icons.check_circle, color: Colors.green, size: 48),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            child: CardSwiper(
+              // Настройки анимации
+              duration: const Duration(milliseconds: 300),
+              allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
+              numberOfCardsDisplayed: state.cards.length > 1 ? 2 : 1,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+              
+              // Основной строитель карточки
+              cardBuilder: (context, index, horizontalOffsetPercentage, verticalOffsetPercentage) {
+                final card = state.cards[index];
                 
-                // Сам механизм свайпа
-                CardSwiper(
-                  // Разрешаем только свайпы влево и вправо
-                  allowedSwipeDirection: const AllowedSwipeDirection.symmetric(horizontal: true),
-                  numberOfCardsDisplayed: state.cards.length > 1 ? 2 : 1,
-                  padding: const EdgeInsets.all(24),
-                  cardBuilder: (context, index, horizontalOffsetPercentage, verticalOffsetPercentage) {
-                    final card = state.cards[index];
-                    return FlashcardWidget(
-                      key: ValueKey('${card.id}_$index'), // Уникальный ключ
-                      card: card
-                    );
-                  },
-                  onSwipe: (previousIndex, currentIndex, direction) {
-                    context.read<TrainingCubit>().handleSwipe(
-                      previousIndex,
-                      direction,
-                    );
-                    return true;
-                  },
-                  cardsCount: state.cards.length,
-                ),
-              ],
+                // Передаем horizontalOffsetPercentage (от -100 до 100 в этом пакете обычно, 
+                // поэтому делим на 100 для получения значения от -1.0 до 1.0)
+                final double offset = horizontalOffsetPercentage / 100;
+
+                return FlashcardWidget(
+                  key: ValueKey('${card.id}_$index'),
+                  card: card,
+                  horizontalOffset: offset, // Прокидываем смещение для анимации
+                );
+              },
+              
+              onSwipe: (previousIndex, currentIndex, direction) {
+                context.read<TrainingCubit>().handleSwipe(
+                  previousIndex,
+                  direction,
+                );
+                return true;
+              },
+              cardsCount: state.cards.length,
             ),
           );
         },

@@ -5,7 +5,13 @@ import 'package:memo_lingvo/core/localization/l10n/app_localizations.dart';
 
 class FlashcardWidget extends StatefulWidget {
   final db.Card card;
-  const FlashcardWidget({super.key, required this.card});
+  final double horizontalOffset; // Добавлено: от -1 (влево) до 1 (вправо)
+
+  const FlashcardWidget({
+    super.key,
+    required this.card,
+    this.horizontalOffset = 0, // По умолчанию 0
+  });
 
   @override
   State<StatefulWidget> createState() => FlashcardWidgetState();
@@ -50,30 +56,60 @@ class FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProvi
       child: AnimatedBuilder(
         animation: _animation,
         builder: (context, child) {
-          // Вычисление угла поворота
           final angle = _animation.value * pi;
-          
-          // Матрица трансформации для 3D эффекта
           final transform = Matrix4.identity()
-            ..setEntry(3, 2, 0.001) // Перспектива
+            ..setEntry(3, 2, 0.001)
             ..rotateY(angle);
 
-          // Если угол больше 90 градусов (pi/2), мы показываем заднюю сторону
           final isFrontVisible = angle < (pi / 2);
 
           return Transform(
             transform: transform,
             alignment: Alignment.center,
-            child: isFrontVisible
-                ? _buildFrontSide()
-                : Transform(
-                    // Отражаем заднюю сторону, чтобы она не была зеркальной
-                    transform: Matrix4.identity()..rotateY(pi),
-                    alignment: Alignment.center,
-                    child: _buildBackSide(),
-                  ),
+            child: Stack(
+              children: [
+                // Основное содержимое карточки
+                isFrontVisible
+                    ? _buildFrontSide()
+                    : Transform(
+                        transform: Matrix4.identity()..rotateY(pi),
+                        alignment: Alignment.center,
+                        child: _buildBackSide(),
+                      ),
+                
+                // Слой цветового индикатора (Glow)
+                _buildSwipeOverlay(),
+              ],
+            ),
           );
         },
+      ),
+    );
+  }
+
+  // Новый метод для отрисовки индикатора свайпа
+  Widget _buildSwipeOverlay() {
+    if (widget.horizontalOffset == 0) return const SizedBox.shrink();
+
+    final bool isRight = widget.horizontalOffset > 0;
+    final double opacity = (widget.horizontalOffset.abs() * 0.8).clamp(0.0, 0.8);
+    final Color overlayColor = isRight ? Colors.green : Colors.red;
+    final IconData icon = isRight ? Icons.check_circle_outline : Icons.highlight_off;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        color: overlayColor.withOpacity(opacity),
+      ),
+      child: Center(
+        child: Opacity(
+          opacity: (widget.horizontalOffset.abs() * 2).clamp(0.0, 1.0),
+          child: Icon(
+            icon,
+            size: 100,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
@@ -82,6 +118,7 @@ class FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProvi
     final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 8,
+      margin: EdgeInsets.zero, // Убираем дефолтные отступы для чистоты анимации
       shadowColor: Colors.black26,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       color: Theme.of(context).cardColor,
@@ -90,13 +127,10 @@ class FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProvi
           padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children:[
+            children: [
               Text(
                 widget.card.word,
-                style: const TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -104,7 +138,7 @@ class FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProvi
                 Text(
                   "[${widget.card.transcription}]",
                   style: TextStyle(
-                    fontSize: 22, 
+                    fontSize: 22,
                     color: Theme.of(context).textTheme.bodySmall?.color ?? Colors.grey,
                     fontStyle: FontStyle.italic,
                   ),
@@ -126,6 +160,7 @@ class FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProvi
   Widget _buildBackSide() {
     return Card(
       elevation: 8,
+      margin: EdgeInsets.zero,
       shadowColor: Colors.black26,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       color: Theme.of(context).colorScheme.primaryContainer,
@@ -136,7 +171,7 @@ class FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProvi
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children:[
+              children: [
                 Text(
                   widget.card.translation,
                   style: TextStyle(
